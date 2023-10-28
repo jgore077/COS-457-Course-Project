@@ -1,0 +1,8 @@
+{
+      "host": "volleyball-database.postgres.database.azure.com",
+      "user": "volleyballadmin",
+      "password": "adminpassword99!",
+      "database":"VBMS",
+      "port":5432
+  }
+  
