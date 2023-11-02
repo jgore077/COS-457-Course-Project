@@ -1,0 +1,30 @@
+.center{
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+.formStyle{
+  padding:30px 30px 10px 30px;
+  border:solid;
+  border-radius:30px;
+}
+.main{
+  margin: 10%;
+}
+
+.submitButton{
+  color:white;
+  border:blue;
+  background: blue;
+  margin-top:20px
+}
+
+.button{
+  margin-bottom: 0px;
+}
+.error{
+  width: 100%;
+  font-size: 12px;
+}
