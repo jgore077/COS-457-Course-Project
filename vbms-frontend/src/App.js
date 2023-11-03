@@ -13,7 +13,6 @@ function App() {
   useEffect(() => {
     const checkCookiePresence = () => {
       const currentAuthToken = getCookie('authToken');
-      console.log(currentAuthToken)
       setAuthTokenPresent(Boolean(currentAuthToken));
    
     };
