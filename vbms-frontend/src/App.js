@@ -2,6 +2,7 @@ import React,{useState,useEffect} from 'react'
 import { CookiesProvider, useCookies,withCookies } from "react-cookie";
 import Main from './Main';
 import Authentication from './Authentication';
+import TestComponent from './TestComponent';
 function App() {
 
   const [cookies] = useCookies(['authToken']);
@@ -26,6 +27,7 @@ function App() {
     // Cleanup: Clear the interval when the component is unmounted
     return () => clearInterval(interval);
   }, [isAuthTokenPresent]);
+
   //use effect for validating auth tokens and loading into the main component
   useEffect(() => {
       
@@ -50,7 +52,9 @@ function App() {
   }, [isAuthTokenPresent]);
 
   function getCookie(name) {
+    
     const value = `; ${document.cookie}`;
+
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) return parts.pop().split(';').shift();
     return null;
@@ -59,7 +63,9 @@ function App() {
 
   return (
     <div>
+      {/* <Main/> */}
      {isLoggedIn?<Main/>:<Authentication/>}
+     {/* <TestComponent/> */}
     </div>
   )
 }

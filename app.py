@@ -23,7 +23,8 @@ app = Flask(__name__)
 def jwt_auth(jwt_token)->dict:
     try:
         return(decode(jwt_token,secret,algorithms=["HS256"]))
-    except (InvalidSignatureError,ValueError,DecodeError):
+    except (InvalidSignatureError,ValueError,DecodeError) as exception:
+        print(exception)
         return {}
 
 def encode_jwt(user_id)->str:
@@ -50,6 +51,7 @@ def login():
 def signup():
     body={'email':None,'username':None,'password':None}
     print(json.dumps(body))
+    print(request.json)
     # If it doesnt satisfy conditions return the code as 400
     res= make_response(json.dumps(body), 200)
     print('User attempting to signup')
@@ -64,6 +66,7 @@ def getinfo():
     # I need to check if I can validate a jwt token from the client side
     authed_token=jwt_auth(request.cookies['authToken'])
     if(authed_token!={}):
+  
         res.status_code=200
         #load the user data in the data to this
         res.data= json.dumps({'uid':authed_token['uid']})
