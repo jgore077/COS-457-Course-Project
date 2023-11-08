@@ -63,8 +63,8 @@ function App() {
 
   return (
     <div>
-      {/* <Main/> */}
-     {isLoggedIn?<Main/>:<Authentication/>}
+      <Main/>
+     {/* {isLoggedIn?<Main/>:<Authentication/>} */}
      {/* <TestComponent/> */}
     </div>
   )
