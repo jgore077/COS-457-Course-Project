@@ -112,7 +112,7 @@ def signup():
         
 
 #     return res
-
+# add code incase the authToken is invalid
 @app.route('/decode',methods=["POST"])
 def decodeAuthToken():
     res=make_response()
