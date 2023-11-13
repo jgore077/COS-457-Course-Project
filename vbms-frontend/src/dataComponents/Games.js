@@ -24,7 +24,7 @@ function Games(props) {
     })
   },[])
   return (
-
+    // condition?true:false
     <div class='center'>
     <Game role={props.decodedAuthToken.role}/>
     {(props.decodedAuthToken.role==='admin' && !props.sidebarState)?<div class='add-button-container'>
