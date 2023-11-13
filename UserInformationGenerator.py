@@ -1,22 +1,11 @@
-#Fake User Information Generator
 import csv
 import json
 import random
-from faker import Faker #pip install Faker
+from faker import Faker # Installation: pip install Faker
 from volleyBallDatabase import volleyBallDatabase
-import psycopg2
+import psycopg2 # Installation: pip install psycopg2
 
 fake = Faker()
-
-
-with open('config.json','r') as data:
-    config=json.load(data)
-
-connection = psycopg2.connect(**config)
-cursor = connection.cursor()
-vbDB = volleyBallDatabase(cursor= cursor, connection= connection)
-
-#fake.name() <- produces randomized name
 
 #csv file for users table
 user_file = open('user.csv', 'w', newline='', encoding="utf-8")
@@ -65,3 +54,29 @@ for i in user_id_set:
     count += 1
 
 user_file.close()
+
+# Using the CSV file created above, 'user.csv', we will infput this data into our 'users' Table in PostgreSQL
+
+with open('config.json','r') as data:
+    config=json.load(data)
+
+connection = psycopg2.connect(**config)
+cursor = connection.cursor()
+vbDB = volleyBallDatabase(cursor= cursor, connection= connection)
+
+
+csv_file_path = '\Users\Megan Fleck\COS-457-Course-Project\user.csv'
+
+with open(csv_file_path, 'r') as csv_file:
+    csv_reader = csv.reader(csv_file)
+    header = next(csv_reader)
+
+    # Iterate through each row and execute the insert to the table
+    for row in csv_reader:
+        current_row = row.split(',')
+        user_id = current_row[0]
+        cursor.execute("INSERT INTO {vbms.users} VALUES ('{current_row[0]}', '{current_row[1]}', '{current_row[2]}', '{current_row[3]}', '{current_row[4]}', '{current_row[5]}', '{current_row[6]}', '{current_row[7]}')")
+
+connection.commit()
+cursor.close()
+connection.close()
