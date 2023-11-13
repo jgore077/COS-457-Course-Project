@@ -3,7 +3,7 @@ import '../Authentication.css'
 function Announcements(props) {
   console.log(props)
   return (
-    <div className='center'>Announcements</div>
+    <div class='center'>Announcements</div>
   )
 }
 

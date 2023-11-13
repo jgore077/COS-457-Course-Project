@@ -7,16 +7,20 @@
     font-size: 18px;
     text-align: center;
     padding: 5px;
+    background-color: whitesmoke
   }
   .modal > .content {
     width: 100%;
     padding: 10px 5px;
+    background-color: whitesmoke
   }
   .modal > .actions {
     width: 100%;
     padding: 10px 5px;
     margin: auto;
     text-align: center;
+    background-color: whitesmoke
+   
   }
   .modal > .close {
     cursor: pointer;
@@ -27,7 +31,21 @@
     right: -10px;
     top: -10px;
     font-size: 24px;
-    background: #ffffff;
+    background: whitesmoke;
     border-radius: 18px;
     border: 1px solid #cfcece;
+  }
+
+.flashing-border{
+  border: 1px solid #ccc; /* Original border color */
+  border-radius: 3px;
+  animation: flash 2s infinite;
+}
+@keyframes flash {
+    0%, 100% {
+      border-color: #ccc;
+    }
+    50% {
+      border-color: #ff0000; /* Red color */
+    }
   }
