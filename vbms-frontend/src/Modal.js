@@ -1,10 +1,11 @@
-import React from 'react';
+import React,{useState} from 'react';
 import Popup from 'reactjs-popup';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import './Modal.css'
+import dayjs from 'dayjs';
 
 // https://www.npmjs.com/package/@mui/x-date-pickers
 // https://mui.com/x/react-date-pickers/date-time-picker/
@@ -16,9 +17,17 @@ import './Modal.css'
 // I should set the default value to the users current time
 
 // The trigger for the modal can be any valid html it appears, This makes me want to use an Icon for both the edit and create
-export default () => (
+// I made the trigger part of the props so I can use the big button at the end bottom of the page
+
+// i may add some conditional renders and states
+
+// I need a prop for game or practice,
+export default (props) => { 
+  let [dateTime,setDateTime]=useState(dayjs())
+
+  return(
   <Popup
-    trigger={<button className="button"> Open Modal </button>}
+    trigger={props.trigger}
     modal
     nested
   >
@@ -32,13 +41,18 @@ export default () => (
         <div className="content">
             Location
             <br/> 
-            <input type='text' size="30"/>
+            <textarea id='location' type='text' size="30" style={{width:'95%'}}/>
             <br/>
+            Description
+            <br/> 
+            <textarea id='description' type='text' size="30" style={{width:'95%'}}/>
+            <br/>
+            {props.practice?<div>Opponent<br/><input id='opponent' type='text' size="30" style={{width:'95%'}}/><br/></div>:undefined}
+  
             
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                
                 <DemoContainer components={['DateTimePicker']}>
-                    <DateTimePicker label="Choose a date!" />
+                    <DateTimePicker label="Choose a date!" onChange={(newValue) => setDateTime(newValue)} defaultValue={dateTime}/>
                 </DemoContainer>
             </LocalizationProvider>
         </div>
@@ -47,7 +61,35 @@ export default () => (
           <button
             className="button"
             onClick={() => {
-              console.log('modal closed ');
+              let location   =document.getElementById('location')
+              let description=document.getElementById('description')
+              let opponent   =document.getElementById('opponent')
+              let incompleted=[]
+              if(location.value.length==0){
+                incompleted.push(location)
+              }
+              if(description.value.length==0){
+                incompleted.push(description)
+              }
+              if(props.practice){
+                if(opponent.value.length==0){
+                  incompleted.push(opponent)
+                }
+              }
+              // I need to add some checking for valid fields here. I plan on using my old css and vanilla js
+              console.log(location.value);
+              incompleted.forEach(element => {
+                element.classList.add('flashing-border')
+              });
+              setTimeout(function() {
+                incompleted.forEach(element => {
+                    element.classList.remove('flashing-border')
+                });
+                 }, 2000);
+              if(incompleted.length!=0){
+                return
+              }
+              console.log(dateTime)
               close();
             }}
           >
@@ -57,4 +99,4 @@ export default () => (
       </div>
     )}
   </Popup>
-);
+)};
