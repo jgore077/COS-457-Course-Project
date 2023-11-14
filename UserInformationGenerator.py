@@ -5,6 +5,7 @@ from faker import Faker # Installation: pip install Faker
 from volleyBallDatabase import volleyBallDatabase
 import psycopg2 # Installation: pip install psycopg2
 
+# Initialize Faker
 fake = Faker()
 
 #csv file for users table
@@ -51,15 +52,14 @@ for i in user_id_set:
 
 user_file.close()
 
-# Using the CSV file created above, 'user.csv', we will infput this data into our 'users' Table in PostgreSQL
+# Using the CSV file created above, 'user.csv', we will input this data into our 'users' Table in PostgreSQL
 
-with open('config.json','r') as data:
-    config=json.load(data)
+with open('config.json', 'r') as data:
+    config = json.load(data)
 
 connection = psycopg2.connect(**config)
 cursor = connection.cursor()
 vbDB = volleyBallDatabase(cursor= cursor, connection= connection)
-
 
 csv_file_path = r'\Users\Megan Fleck\COS-457-Course-Project\user.csv'
 
