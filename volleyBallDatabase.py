@@ -1,23 +1,143 @@
 import psycopg2
 import json
 
-
-
 create_announcements="""
+-- Table: vbms.announcements
 
+-- DROP TABLE IF EXISTS vbms.announcements;
+
+CREATE TABLE IF NOT EXISTS vbms.announcements
+(
+    announcement_id integer NOT NULL DEFAULT nextval('vbms.announcements_announcement_id_seq'::regclass),
+    publisher_uid integer NOT NULL,
+    date_published timestamp with time zone,
+    content text COLLATE pg_catalog."default",
+    CONSTRAINT annnouncements_pkey PRIMARY KEY (announcement_id),
+    CONSTRAINT publisher_fkey FOREIGN KEY (publisher_uid)
+        REFERENCES vbms.users (user_id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+        NOT VALID
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS vbms.announcements
+    OWNER to volleyballadmin;
 """
 create_users="""
- 
+           -- Table: vbms.users
+
+-- DROP TABLE IF EXISTS vbms.users;
+
+CREATE TABLE IF NOT EXISTS vbms.users
+(
+    user_id integer NOT NULL DEFAULT nextval('vbms.users_uid_seq'::regclass),
+    email text COLLATE pg_catalog."default",
+    uname text COLLATE pg_catalog."default",
+    pword text COLLATE pg_catalog."default",
+    role text COLLATE pg_catalog."default",
+    phone_num text COLLATE pg_catalog."default",
+    is_commuter boolean,
+    shirt_size text COLLATE pg_catalog."default",
+    CONSTRAINT users_pkey PRIMARY KEY (user_id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS vbms.users
+    OWNER to volleyballadmin;  
 """
 
 create_games="""
-    
+    -- Table: vbms.games
+
+-- DROP TABLE IF EXISTS vbms.games;
+
+CREATE TABLE IF NOT EXISTS vbms.games
+(
+    game_id integer NOT NULL DEFAULT nextval('vbms.games_gid_seq'::regclass),
+    location text COLLATE pg_catalog."default",
+    description text COLLATE pg_catalog."default",
+    gamedate timestamp with time zone NOT NULL,
+    opponent text COLLATE pg_catalog."default",
+    game_score text COLLATE pg_catalog."default",
+    set_scores integer[],
+    CONSTRAINT games_pkey PRIMARY KEY (game_id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS vbms.games
+    OWNER to volleyballadmin;
 """
 create_practices="""
+-- Table: vbms.practice
 
+-- DROP TABLE IF EXISTS vbms.practice;
+
+CREATE TABLE IF NOT EXISTS vbms.practice
+(
+    practice_id integer NOT NULL DEFAULT nextval('vbms."practice _practice_id_seq"'::regclass),
+    description text COLLATE pg_catalog."default",
+    location text COLLATE pg_catalog."default",
+    date timestamp with time zone,
+    CONSTRAINT practice_pkey PRIMARY KEY (practice_id)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS vbms.practice
+    OWNER to volleyballadmin;
+
+-- Trigger: add_attendance_rows_trigger
+
+-- DROP TRIGGER IF EXISTS add_attendance_rows_trigger ON vbms.practice;
+
+CREATE OR REPLACE TRIGGER add_attendance_rows_trigger
+    AFTER INSERT
+    ON vbms.practice
+    FOR EACH ROW
+    EXECUTE FUNCTION vbms.add_attendance_rows();
 """
 create_attendance="""
+-- Table: vbms.attendance
 
+-- DROP TABLE IF EXISTS vbms.attendance;
+
+CREATE TABLE IF NOT EXISTS vbms.attendance
+(
+    practice_id integer NOT NULL,
+    user_id integer NOT NULL,
+    attendance_status integer,
+    CONSTRAINT practice_pkey FOREIGN KEY (practice_id)
+        REFERENCES vbms.practice (practice_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE CASCADE
+        NOT VALID,
+    CONSTRAINT user_fkey FOREIGN KEY (user_id)
+        REFERENCES vbms.users (user_id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+        NOT VALID,
+    CONSTRAINT status_check CHECK (attendance_status >= 0 AND attendance_status <= 2) NOT VALID
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS vbms.attendance
+    OWNER to volleyballadmin;
+
+COMMENT ON COLUMN vbms.attendance.attendance_status
+    IS '0-absent, 1-present, 2-excused';
+-- Index: fki_user_fkey
+
+-- DROP INDEX IF EXISTS vbms.fki_user_fkey;
+
+CREATE INDEX IF NOT EXISTS fki_user_fkey
+    ON vbms.attendance USING btree
+    (user_id ASC NULLS LAST)
+    TABLESPACE pg_default;
 """
 
 class volleyBallDatabase():
