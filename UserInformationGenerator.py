@@ -30,19 +30,15 @@ def generate_unique_integers(length, count):
 
 # Generate unique user IDs of length 7 (unique)
 user_id_set = generate_unique_integers(7, 999)
-print("num of User IDs: " + str(len(user_id_set)))
 
 # Generate user names in format "firstName.last.Name" not neccessarily unique
 uname = [(fake.name()).replace(" ", ".") for i in range(999)]
-print("num of User names: " + str(len(uname)))
 
 # Generate passwords not neccessarily unique
 pword = [(fake.word() + str(random.randint(0, 999))) for i in range(999)]
-print("num of passwords: " + str(len(pword)))
 
 # Generate phone numbers not neccessarily unique
 phone_num = [fake.phone_number() for i in range(999)]
-print("num of Phone Numbers: " + str(len(phone_num)))
 
 role = "player"
 # all these users are being entered as players
@@ -65,17 +61,17 @@ cursor = connection.cursor()
 vbDB = volleyBallDatabase(cursor= cursor, connection= connection)
 
 
-csv_file_path = '\Users\Megan Fleck\COS-457-Course-Project\user.csv'
+csv_file_path = r'\Users\Megan Fleck\COS-457-Course-Project\user.csv'
 
 with open(csv_file_path, 'r') as csv_file:
     csv_reader = csv.reader(csv_file)
     header = next(csv_reader)
 
+    insert_query = f"INSERT INTO vbms.users VALUES ({', '.join(['%s'] * len(header))})"
+    
     # Iterate through each row and execute the insert to the table
     for row in csv_reader:
-        current_row = row.split(',')
-        user_id = current_row[0]
-        cursor.execute("INSERT INTO {vbms.users} VALUES ('{current_row[0]}', '{current_row[1]}', '{current_row[2]}', '{current_row[3]}', '{current_row[4]}', '{current_row[5]}', '{current_row[6]}', '{current_row[7]}')")
+        cursor.execute(insert_query, row)
 
 connection.commit()
 cursor.close()
