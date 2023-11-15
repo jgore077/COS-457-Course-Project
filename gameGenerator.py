@@ -77,7 +77,7 @@ cursor.execute("SELECT game_id, gamedate FROM vbms.games;")
 gamesID = cursor.fetchall()
 
 for gID in gamesID:
-    if gID[1] < gamedate.now(): #check if game is in past, if so then we need scores
+    if gID[1] < datetime.now(): #check if game is in past, if so then we need scores
         final_score = random.randint(1, 6) #match best of 5
         #here 1 - 6 represents the following possible match scores: "3 - 0", "3 - 1", "3 - 2", "2 - 3", "1 - 3", "0 - 3"
         if final_score == 1: # 3 - 0
@@ -142,5 +142,8 @@ with open(csv_file_path, 'r') as csv_file:
         cursor.execute(insert_query, row)
 
 connection.commit()
+cursor.close()
+connection.close()
 
-# Now update the games Table to include the match_scores
+# Now update the games Table to include the match_scores, 
+# may want to do this directly in PostgreSQL
