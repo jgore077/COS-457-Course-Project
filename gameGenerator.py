@@ -147,3 +147,4 @@ connection.close()
 
 # Now update the games Table to include the match_scores, 
 # may want to do this directly in PostgreSQL
+#need to make sets table
