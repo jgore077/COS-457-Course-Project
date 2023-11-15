@@ -63,7 +63,7 @@ connection.commit()
 # This then can be used to calculate the match score and update the games table.
 
 #TABLE sets(game_id, set_num, usm_score, opponent_score)
-sets_file = open('games.csv', 'w', newline='', encoding="utf-8")
+sets_file = open('sets.csv', 'w', newline='', encoding="utf-8")
 write_set = csv.writer(sets_file, delimiter=',', lineterminator='\n')
 write_set.writerow(["game_id", "set_num", "usm_score", "opponent_score"])
 
