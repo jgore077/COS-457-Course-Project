@@ -27,14 +27,19 @@ BEGIN
     SET match_score = usm_wins || ' - ' || opponent_wins
     WHERE game_id = NEW.game_id;
 
+    RAISE NOTICE '% % % %', NEW.game_id, total_sets, usm_wins, opponent_wins;
+
     RETURN NULL;
 END;
 $$;
 
-DROP TRIGGER IF EXISTS after_insert_sets ON vbms.sets;
+ALTER FUNCTION vbms.update_match_scores()
+    OWNER TO volleyballadmin;
 
-CREATE TRIGGER after_insert_sets
+DROP TRIGGER IF EXISTS update_match_scores_trigger ON vbms.sets;
+
+CREATE TRIGGER update_match_scores_trigger
 AFTER INSERT
 ON vbms.sets
 FOR EACH ROW
-EXECUTE FUNCTION vbms.update_match_score();
+EXECUTE FUNCTION vbms.update_match_scores();

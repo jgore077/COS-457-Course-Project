@@ -70,11 +70,11 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS vbms.games
     OWNER to volleyballadmin;
 
--- Trigger: after_insert_sets    
+-- Trigger: update_match_scores_trigger   
 
--- DROP TRIGGER IF EXISTS after_insert_sets ON vbms.sets()
+-- DROP TRIGGER IF EXISTS update_match_scores_trigger ON vbms.sets()
 
-CREATE OR REPLACE TRIGGER after_insert_sets
+CREATE OR REPLACE TRIGGER update_match_scores_trigger
 AFTER INSERT
 ON vbms.sets
 FOR EACH ROW
