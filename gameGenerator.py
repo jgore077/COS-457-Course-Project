@@ -7,6 +7,9 @@ import psycopg2 # Installation: pip install psycopg2
 
 from datetime import datetime
 
+# If you run this python file, 100 new games will be created and put into both the csv file and the games table.
+# The sets scores will also generate and go into the sets csv file and sets table.
+
 fake = Faker()
 
 games_file = open('games.csv', 'w', newline='', encoding="utf-8")
@@ -14,7 +17,7 @@ write_game = csv.writer(games_file, delimiter=',', lineterminator='\n')
 write_game.writerow(["game_id", "location", "description", "gamedate", "opponent", "match_score"])
 # TABLE games("game_id", "location", "description", "gamedate", "opponent", "match_score")
 
-game_id = 1 #starts at 1 and go up by 1 for each recorded/scheduled game
+game_id = 2 # starts at 1 and go up by 1 for each recorded/scheduled game
 teams = ["University of New England", "University of Maine Orino", "University of New Hampshire", "Plymouth State University", "Merrimack College", "Colby College", "Bates College"]
 # 100 different games
 gamedate = [fake.date_time_between(start_date= "-2y", end_date= "+1y") for i in range(100)]
@@ -27,10 +30,6 @@ for date in sorted_gamedates:
     else:
         location = opponent
     description = "USM v.s. " + opponent + "! Located at " + location + " on " + str(date) + "."
-#    if date < datetime.now(): #past, USM - Opponent
-#        match_score = random.choice("3 - 0", "3 - 1", "3 - 2", "2 - 3", "1 - 3", "0 - 3")
-#    else: #this is then a future game, so no score yet
-#        match_score = None
     write_game.writerow([game_id, location, description, date, opponent, None])
     game_id += 1
 
