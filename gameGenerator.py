@@ -12,7 +12,7 @@ fake = Faker()
 games_file = open('games.csv', 'w', newline='', encoding="utf-8")
 write_game = csv.writer(games_file, delimiter=',', lineterminator='\n')
 write_game.writerow(["game_id", "location", "description", "gamedate", "opponent", "match_score"])
-# TABLE games("game_id", "location", "description", "gamedate", "opponent", "match_score", "set_scores")
+# TABLE games("game_id", "location", "description", "gamedate", "opponent", "match_score")
 
 game_id = 1 #starts at 1 and go up by 1 for each recorded/scheduled game
 teams = ["University of New England", "University of Maine Orino", "University of New Hampshire", "Plymouth State University", "Merrimack College", "Colby College", "Bates College"]
@@ -147,4 +147,4 @@ connection.close()
 
 # Now update the games Table to include the match_scores, 
 # may want to do this directly in PostgreSQL
-#need to make sets table
+
