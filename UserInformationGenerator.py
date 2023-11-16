@@ -1,52 +1,78 @@
 import csv
 import json
-from faker import Faker
 import random
-import psycopg2
+from faker import Faker # Installation: pip install Faker
+from volleyBallDatabase import volleyBallDatabase
+import psycopg2 # Installation: pip install psycopg2
 
 # Initialize Faker
 fake = Faker()
 
-# Volleyball-specific content
-teams = ['Spikers', 'Aces', 'Blockers', 'Diggers', 'Setters', 'Hitters']
-tournaments = ['Spring Volleyfest', 'Beach Volleyball Championship', 'Indoor Volley League']
-players = ['John Doe', 'Jane Smith', 'Alex Johnson', 'Emily Davis', 'Chris Brown']
+#csv file for users table
+user_file = open('user.csv', 'w', newline='', encoding="utf-8")
+write_user = csv.writer(user_file, delimiter=',', lineterminator='\n')
+write_user.writerow(["user_id", "email", "uname", "pword", "role", "phone_num", "is_commuter", "shirt_size"])
+#Table Users("user_id", "email", "uname", "pword", "role", "phone_num", "is_commuter", "shirt_size")
 
-# Function to create a volleyball-related announcement
-def create_volleyball_announcement():
-    announcement_type = random.choice(['match', 'tournament', 'player'])
-    if announcement_type == 'match':
-        team_a = random.choice(teams)
-        team_b = random.choice(teams)
-        while team_b == team_a:
-            team_b = random.choice(teams)
-        return f"Upcoming match between {team_a} and {team_b} on {fake.date()}"
+#Adding a specific admin user
+write_user.writerow(["1078735", "megan.fleck@maine.edu", "megan.fleck", "password123", "coach", "2078075832", "TRUE", "M"])
 
-    elif announcement_type == 'tournament':
-        tournament = random.choice(tournaments)
-        return f"Join us for the {tournament} starting {fake.date()}"
+def generate_unique_integers(length, count):
+    lower_bound = 10 ** (length - 1)
+    upper_bound = (10 ** length) - 1
 
-    elif announcement_type == 'player':
-        player = random.choice(players)
-        return f"Spotlight on player: {player}"
+    #Ensure uniqueness using a set
+    unique_numbers = set()
 
-# Read database configuration and establish connection
+    while len(unique_numbers) < count:
+        unique_numbers.add(random.randint(lower_bound, upper_bound))
+
+    return list(unique_numbers)
+
+# Generate unique user IDs of length 7 (unique)
+user_id_set = generate_unique_integers(7, 999)
+
+# Generate user names in format "firstName.last.Name" not neccessarily unique
+uname = [(fake.name()).replace(" ", ".") for i in range(999)]
+
+# Generate passwords not neccessarily unique
+pword = [(fake.word() + str(random.randint(0, 999))) for i in range(999)]
+
+# Generate phone numbers not neccessarily unique
+phone_num = [fake.phone_number() for i in range(999)]
+
+role = "player"
+# all these users are being entered as players
+count = 0
+for i in user_id_set:
+    is_commuter = random.choice([True, False])
+    shirt_size = random.choice(["XS", "S", "M", "L", "XL"])
+    write_user.writerow([i, uname[count] + "@maine.edu", uname[count], pword[count], role, phone_num[count], is_commuter, shirt_size])
+    count += 1
+
+user_file.close()
+
+# Using the CSV file created above, 'user.csv', we will input this data into our 'users' Table in PostgreSQL
+
 with open('config.json', 'r') as data:
     config = json.load(data)
 
 connection = psycopg2.connect(**config)
 cursor = connection.cursor()
+vbDB = volleyBallDatabase(cursor= cursor, connection= connection)
 
-# number of fake announcements to generate
-num_announcements = 50
+csv_file_path = r'\Users\Megan Fleck\COS-457-Course-Project\user.csv'
 
-#  CSV file to store fake announcement data
-announcement_file = open('announcement.csv', 'w', newline='', encoding="utf-8")
-write_announcement = csv.writer(announcement_file, delimiter=',', lineterminator='\n')
+with open(csv_file_path, 'r') as csv_file:
+    csv_reader = csv.reader(csv_file)
+    header = next(csv_reader)
 
-# fake announcements
-for _ in range(num_announcements):
-    announcement = create_volleyball_announcement()
-    write_announcement.writerow([announcement])
+    insert_query = f"INSERT INTO vbms.users VALUES ({', '.join(['%s'] * len(header))})"
+    
+    # Iterate through each row and execute the insert to the table
+    for row in csv_reader:
+        cursor.execute(insert_query, row)
 
-announcement_file.close()
+connection.commit()
+cursor.close()
+connection.close()

@@ -61,8 +61,7 @@ CREATE TABLE IF NOT EXISTS vbms.games
     description text COLLATE pg_catalog."default",
     gamedate timestamp with time zone NOT NULL,
     opponent text COLLATE pg_catalog."default",
-    game_score text COLLATE pg_catalog."default",
-    set_scores integer[],
+    match_score text COLLATE pg_catalog."default",
     CONSTRAINT games_pkey PRIMARY KEY (game_id)
 )
 
@@ -70,6 +69,16 @@ TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS vbms.games
     OWNER to volleyballadmin;
+
+-- Trigger: update_match_scores_trigger   
+
+-- DROP TRIGGER IF EXISTS update_match_scores_trigger ON vbms.sets()
+
+CREATE OR REPLACE TRIGGER update_match_scores_trigger
+AFTER INSERT
+ON vbms.sets
+FOR EACH ROW
+EXECUTE FUNCTION vbms.update_match_score();
 """
 create_practices="""
 -- Table: vbms.practice
@@ -139,6 +148,28 @@ CREATE INDEX IF NOT EXISTS fki_user_fkey
     (user_id ASC NULLS LAST)
     TABLESPACE pg_default;
 """
+create_sets="""
+-- Table: vbms.sets
+
+-- DROP TABLE IF EXISTS vbms.sets;
+
+CREATE TABLE IF NOT EXISTS vbms.sets
+(
+    game_id integer NOT NULL,
+    set_num integer,
+    usm_score integer,
+    opponent_score integer,
+    CONSTRAINT "game_idFK" FOREIGN KEY (game_id)
+        REFERENCES vbms.games (game_id) MATCH SIMPLE
+        ON UPDATE CASCADE
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS vbms.sets
+    OWNER to volleyballadmin;
+"""
 
 class volleyBallDatabase():
 
@@ -186,6 +217,10 @@ class volleyBallDatabase():
     def fetch_announcements(self):
         self.cursor.execute("SELECT * FROM vbms.announcements")
         return self.cursor.fetchall()
+    
+    def fetch_sets(self):
+        self.cursor.execute("SELECT * FROM vbms.sets")
+        return self.cursor.fetchall()
     #----------------------------------------- Inserts ----------------------------------------------
     def insert_practice(self,description,location,date):
         self.cursor.execute(f"""
@@ -198,11 +233,19 @@ class volleyBallDatabase():
     def insert_game(self,location,description,gamedate,opponent):
          self.cursor.execute(f"""
         INSERT INTO vbms.games(
-        location, description, gamedate, opponent, game_score, set_scores)
-        VALUES ('{location}', '{description}', '{gamedate}', '{opponent}', null, null);
+        location, description, gamedate, opponent, game_score)
+        VALUES ('{location}', '{description}', '{gamedate}', '{opponent}', null);
          """)
          self.connection.commit()
     
+    def insert_set(self, set_num, usm_score, opponent_score):
+        self.cursur.execute(f"""
+        INSET INTO vbms.sets(
+         set_num, usm_score, opponent_score)
+        VALUES ('{set_num}', '{usm_score}', '{opponent_score}');
+        """)
+        self.connection.commit()
+
     def insert_user(self,email,uname,pword):
         self.cursor.execute(f"""
         INSERT INTO vbms.users(
@@ -247,4 +290,11 @@ class volleyBallDatabase():
         WHERE user_id={user_id} and practice_id={practice_id};
         """)
         self.connection.commit()
-        
+    # --------------------------- Update Set Score ----------------------------
+    def update_set(self, game_id, set_num, usm_score, opponent_score):
+        self.cursor.execute(f"""
+        UPDATE vbms.sets
+        SET set_num={set_num}, usm_score={usm_score}, opponent_score={opponent_score}
+        WHERE game_id={game_id};
+        """)
+        self.connection.commit()
