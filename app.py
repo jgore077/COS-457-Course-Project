@@ -145,7 +145,7 @@ def games():
     games =db.fetch_games()
 
     for row in games:
-        games_list.append({'game_id':row[0],'location':row[1],'description':row[2],'gamedate':row[3].strftime("%Y-%m-%d %H:%M:%S"),'opponent':row[4],'game_score':row[5],'set_scores':row[6]})
+        games_list.append({'game_id':row[0],'location':row[1],'description':row[2],'gamedate':row[3].strftime("%Y-%m-%d %H:%M:%S"),'opponent':row[4],'game_score':row[5]})
     return make_response(json.dumps({'games':games_list}),200)
 
 @app.route('/creategame')
