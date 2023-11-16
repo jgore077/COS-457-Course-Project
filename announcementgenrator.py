@@ -119,6 +119,6 @@ with open('announcement.csv', mode='w', newline='', encoding="utf-8") as announc
         announcement = create_volleyball_announcement()
         write_announcement.writerow([announcement])
 
-# Close the database connection
+# Close the connection
 cursor.close()
 connection.close()
