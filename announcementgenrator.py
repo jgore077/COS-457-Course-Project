@@ -20,7 +20,7 @@ def create_volleyball_announcement():
         team_b = random.choice(teams)
         while team_b == team_a:
             team_b = random.choice(teams)
-        return f"Upcoming match between {team_a} and {team_b} on {fake.date()}"
+        return f"Upcoming match between {team_a} and {team_b} on {fake.date()} {fake.time()}"
 
     elif announcement_type == 'tournament':
         tournament = random.choice(tournaments)

@@ -135,7 +135,6 @@ def players():
     print(users_and_emails)
     for row in users_and_emails:
         users_and_emails_list.append({'username':row[0],'email':row[1]})
-    print(users_and_emails_list)
     return make_response(json.dumps({'players':users_and_emails_list}),200)
 # Run the app if this script is executed directly
 
