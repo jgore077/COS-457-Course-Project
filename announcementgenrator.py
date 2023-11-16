@@ -34,6 +34,7 @@ common_injuries = ['ankle sprain', 'knee injury', 'shoulder strain', 'back pain'
 
 # Function to create a volleyball-related announcement
 def create_volleyball_announcement():
+
     announcement_type = random.choice([
         'match_preview', 'match_result', 'injury_report', 'transfer_news',
         'special_event', 'training_camp', 'season_summary', 'fan_interaction'
@@ -48,6 +49,15 @@ def create_volleyball_announcement():
     player = random.choice(players)
     injury = random.choice(common_injuries)
     team = random.choice(teams)
+
+    announcement_type = random.choice(['match', 'tournament', 'player'])
+    if announcement_type == 'match':
+        team_a = random.choice(teams)
+        team_b = random.choice(teams)
+        while team_b == team_a:
+            team_b = random.choice(teams)
+        return f"Upcoming match between {team_a} and {team_b} on {fake.date()} {fake.time()}"
+
 
     if announcement_type == 'match_preview':
         return (f"Published on {publish_date} - Exciting Match Preview: {team_a} vs {team_b} on {event_date} at {location}. "
