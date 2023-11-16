@@ -7,46 +7,31 @@ import psycopg2
 # Initialize Faker
 fake = Faker()
 
-# Volleyball-specific content
-teams = ['Spikers', 'Aces', 'Blockers', 'Diggers', 'Setters', 'Hitters']
-tournaments = ['Spring Volleyfest', 'Beach Volleyball Championship', 'Indoor Volley League']
-players = ['John Doe', 'Jane Smith', 'Alex Johnson', 'Emily Davis', 'Chris Brown']
+# Function to create a unique username
+def create_unique_username(existing_usernames):
+    username = f"{fake.user_name()}{random.randint(1, 999)}"
+    while username in existing_usernames:
+        username = f"{fake.user_name()}{random.randint(1, 999)}"
+    return username
 
-# Function to create a volleyball-related announcement
-def create_volleyball_announcement():
-    announcement_type = random.choice(['match', 'tournament', 'player'])
-    if announcement_type == 'match':
-        team_a = random.choice(teams)
-        team_b = random.choice(teams)
-        while team_b == team_a:
-            team_b = random.choice(teams)
-        return f"Upcoming match between {team_a} and {team_b} on {fake.date()}"
-
-    elif announcement_type == 'tournament':
-        tournament = random.choice(tournaments)
-        return f"Join us for the {tournament} starting {fake.date()}"
-
-    elif announcement_type == 'player':
-        player = random.choice(players)
-        return f"Spotlight on player: {player}"
-
-# Read database configuration and establish connection
 with open('config.json', 'r') as data:
     config = json.load(data)
 
 connection = psycopg2.connect(**config)
 cursor = connection.cursor()
 
-# number of fake announcements to generate
-num_announcements = 50
+# number of fake usernames to generate
+num_usernames = 1000
 
-#  CSV file to store fake announcement data
-announcement_file = open('announcement.csv', 'w', newline='', encoding="utf-8")
-write_announcement = csv.writer(announcement_file, delimiter=',', lineterminator='\n')
+# CSV file to store fake usernames
+user = open('user.csv', 'w', newline='', encoding="utf-8")
+write_username = csv.writer(user, delimiter=',', lineterminator='\n')
 
-# fake announcements
-for _ in range(num_announcements):
-    announcement = create_volleyball_announcement()
-    write_announcement.writerow([announcement])
+# Generate and store fake usernames
+existing_usernames = set()
+for _ in range(num_usernames):
+    username = create_unique_username(existing_usernames)
+    existing_usernames.add(username)
+    write_username.writerow([username])
 
-announcement_file.close()
+user.close()
