@@ -185,6 +185,11 @@ class volleyBallDatabase():
     def fetch_user(self,username):
         self.cursor.execute(f"SELECT user_id FROM vbms.users WHERE uname='{username}'")
         return self.cursor.fetchall()
+    
+    def fetch_all_user(self,user_id):
+        self.cursor.execute(f"SELECT * FROM vbms.users WHERE user_id={user_id}")
+        # This feels like a sin but its probably ok
+        return self.cursor.fetchall()
 
     def fetch_all_username_and_email(self):
         self.cursor.execute("SELECT uname,email FROM vbms.users")
@@ -203,7 +208,8 @@ class volleyBallDatabase():
         return self.cursor.fetchall()
         
     def fetch_games(self):
-        self.cursor.execute("SELECT * FROM vbms.games")
+        self.cursor.execute("""SELECT * FROM vbms.games
+            ORDER BY gamedate DESC  """)
         return self.cursor.fetchall()
     
     def fetch_practice(self):
@@ -215,7 +221,8 @@ class volleyBallDatabase():
         return self.cursor.fetchall()
     
     def fetch_announcements(self):
-        self.cursor.execute("SELECT * FROM vbms.announcements")
+        self.cursor.execute("""SELECT * FROM vbms.announcements 
+                            ORDER BY date_published DESC""")
         return self.cursor.fetchall()
     
     def fetch_sets(self):
@@ -233,8 +240,8 @@ class volleyBallDatabase():
     def insert_game(self,location,description,gamedate,opponent):
          self.cursor.execute(f"""
         INSERT INTO vbms.games(
-        location, description, gamedate, opponent, game_score)
-        VALUES ('{location}', '{description}', '{gamedate}', '{opponent}', null);
+        location, description, gamedate, opponent, match_score)
+        VALUES ('{location}', '{description}', '{gamedate}', '{opponent}', '0-0');
          """)
          self.connection.commit()
     
@@ -262,7 +269,7 @@ class volleyBallDatabase():
     def update_user_shirt_size(self,user_id,size):
         self.cursor.execute(f"""
         UPDATE vbms.users
-        SET shirt_size={size}
+        SET shirt_size='{size}'
         WHERE user_id={user_id};
         """)
         self.connection.commit()
@@ -270,7 +277,7 @@ class volleyBallDatabase():
     def update_user_phone_number(self,user_id,phone_number):
         self.cursor.execute(f"""
         UPDATE vbms.users
-        SET phone_num={phone_number}
+        SET phone_num='{phone_number}'
         WHERE user_id={user_id};
         """)
         self.connection.commit()
@@ -296,5 +303,20 @@ class volleyBallDatabase():
         UPDATE vbms.sets
         SET set_num={set_num}, usm_score={usm_score}, opponent_score={opponent_score}
         WHERE game_id={game_id};
+        """)
+        self.connection.commit()
+
+    def update_game(self,id,location,opponent,description,datetime):
+        self.cursor.execute(f"""UPDATE vbms.games
+        SET  location='{location}', description='{description}', gamedate='{datetime}', opponent='{opponent}'
+        WHERE game_id={id}
+        """)
+        self.connection.commit()
+        
+    def update_announcement(self,id,content):
+        self.cursor.execute(f"""
+        UPDATE vbms.announcements
+        SET content='{content}'
+        WHERE announcement_id={id};
         """)
         self.connection.commit()

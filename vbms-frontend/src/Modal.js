@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import React,{useState,useContext} from 'react';
 import Popup from 'reactjs-popup';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -6,6 +6,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import './Modal.css'
 import dayjs from 'dayjs';
+import { useReloadContext } from "./Main.js";
 
 // https://www.npmjs.com/package/@mui/x-date-pickers
 // https://mui.com/x/react-date-pickers/date-time-picker/
@@ -23,10 +24,18 @@ import dayjs from 'dayjs';
 
 // I need a prop for game or practice,
 export default (props) => { 
+  const { reload } = useReloadContext();
+  const handleReload = () => {
+    reload();
+  };
   let [dateTime,setDateTime]=useState(dayjs())
-
+  let [descriptionValue,setDescription]=useState(props.description)
+  let [locationValue,setLocation]=useState(props.location)
+  let [opponentValue,setOpponent]=useState(props.opponent)
+  let statement =props.id!=undefined?'Update':'Create'
   return(
   <Popup
+    onClose={handleReload}
     trigger={props.trigger}
     modal
     nested
@@ -36,25 +45,23 @@ export default (props) => {
         <button className="close" onClick={close}>
           &times;
         </button>
-        <div className="header"> Create a Game! </div>
+        <div className="header" style={{paddingTop:15}}> {statement} a {props.type}! </div>
         
         <div className="content">
-            Location
-            <br/> 
-            <textarea id='location' type='text' size="30" style={{width:'95%'}}/>
-            <br/>
+            {props.type==='Game' |props.type==='Practice'?<div>Location<br/><textarea id='location' type='text' size="30" defaultValue={props.location} onChange={(e)=>{setLocation(e.target.value)}} style={{width:'95%'}}/><br/></div>:undefined}
             Description
             <br/> 
-            <textarea id='description' type='text' size="30" style={{width:'95%'}}/>
+            <textarea id='description' type='text' size="30" style={{width:'95%'}} defaultValue={props.description} onChange={(e)=>{setDescription(e.target.value)}}/>
             <br/>
-            {props.practice?<div>Opponent<br/><input id='opponent' type='text' size="30" style={{width:'95%'}}/><br/></div>:undefined}
+            {props.type==='Game'?<div>Opponent<br/><input id='opponent' type='text' size="30" defaultValue={props.opponent} onChange={(e)=>{setOpponent(e.target.value)}} style={{width:'95%'}}/><br/></div>:undefined}
   
-            
+            {props.type==='Game' || props.type==='Practice'?
             <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer components={['DateTimePicker']}>
                     <DateTimePicker label="Choose a date!" onChange={(newValue) => setDateTime(newValue)} defaultValue={dateTime}/>
                 </DemoContainer>
             </LocalizationProvider>
+            :undefined}
         </div>
         <div className="actions">
           
@@ -65,19 +72,19 @@ export default (props) => {
               let description=document.getElementById('description')
               let opponent   =document.getElementById('opponent')
               let incompleted=[]
-              if(location.value.length==0){
+              if(location&&location.value.length==0){
                 incompleted.push(location)
               }
               if(description.value.length==0){
                 incompleted.push(description)
               }
-              if(props.practice){
-                if(opponent.value.length==0){
+              if(props.type=='Game'){
+                if(opponent&&opponent.value.length==0){
                   incompleted.push(opponent)
                 }
               }
               // I need to add some checking for valid fields here. I plan on using my old css and vanilla js
-              console.log(location.value);
+            
               incompleted.forEach(element => {
                 element.classList.add('flashing-border')
               });
@@ -89,11 +96,43 @@ export default (props) => {
               if(incompleted.length!=0){
                 return
               }
-              console.log(dateTime)
+              let route_string=props.type.toLowerCase()
+              if(props.id!=undefined){
+                route_string='/update'+route_string
+              }
+              else{
+                route_string='/create'+route_string
+              }
+              console.log(route_string)
               close();
+              console.log(props.location? props.location : locationValue)
+              fetch(route_string,{
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body:JSON.stringify({
+                  id:props.id,
+                  description: descriptionValue,
+                  location:locationValue,
+                  opponent:opponentValue,
+                  datetime:dateTime,
+                  user_id:props.user_id
+                })
+              }).then((response)=>{
+                response.json().then(function(data)
+                {
+                  console.log(data)
+                });
+                }).catch(function(error){
+                  console.log(error)
+                })
+              .catch((error)=>{
+                  console.log(error)
+              })
             }}
           >
-            Create Game
+            {statement} {props.type}
           </button>
         </div>
       </div>

@@ -1,3 +1,7 @@
+:root {
+    --game-width:75vw;
+  }
+
 .playertext{
     text-align: center;
     border:solid;
@@ -5,6 +9,19 @@
     border-color: mediumturquoise;
     padding:5px;
     margin:10px;
+}
+
+.game{
+  border: solid;
+  border-radius: 10px;
+  padding: 8px;
+  width: var(--game-width);
+  margin-bottom: 40px;
+}
+.game-top{
+  display: flex;
+  justify-content: space-between;
+  width: var(--game-width)
 }
 .player-bottom-margin{
     margin-bottom: 5px;
