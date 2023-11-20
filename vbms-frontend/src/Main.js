@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState,useEffect,createContext,useContext} from "react";
 import * as FaIcons from "react-icons/fa";
 import * as AiIcons from "react-icons/ai";
 import "./Sidebar.css";
@@ -8,8 +8,27 @@ import Announcements from "./dataComponents/Announcements";
 import Games from "./dataComponents/Games";
 import Search from "./dataComponents/Search";
 import Practices from "./dataComponents/Practices";
+import Profile from "./dataComponents/Profile";
 
+const ReloadContext = createContext();
 
+export const useReloadContext = () => {
+  return useContext(ReloadContext);
+};
+
+export function ReloadProvider({ children }) {
+  const [reloadFlag, setReloadFlag] = useState(false);
+
+  const reload = () => {
+    setReloadFlag(!reloadFlag);
+  };
+
+  return (
+    <ReloadContext.Provider value={{ reload }}>
+      {children}
+    </ReloadContext.Provider>
+  );
+}
 
 function Main(props) {
   console.log(props.authCookie)
@@ -17,22 +36,23 @@ function Main(props) {
   const [sidebar, setSidebar] = useState(false);
   let map={
     'players':<Players authCookie={props.authCookie}/>,
-    'games':<Games authCookie={props.authCookie} decodedAuthToken={props.decodedAuthToken} sidebarState={sidebar}/>,
-    'announcements':<Announcements authCookie={props.authCookie}/>,
-    'practices':<Practices authCookie={props.authCookie}/>,
-    'search':<Search/>
+    'games':<Games authCookie={props.authCookie} decodedAuthToken={props.decodedAuthToken} sidebarState={sidebar} game={true}/>,
+    'announcements':<Announcements authCookie={props.authCookie} decodedAuthToken={props.decodedAuthToken} sidebarState={sidebar}/>,
+    'practices':<Practices authCookie={props.authCookie} decodedAuthToken={props.decodedAuthToken} sidebarState={sidebar} />,
+    'search':<Search/>,
+    'profile':<Profile authCookie={props.authCookie} decodedAuthToken={props.decodedAuthToken} sidebarState={sidebar}/>
   }
-  let [navState,setNavState]=useState('players')
+  let [navState,setNavState]=useState('games')
   
 
   useEffect(() => {
     
   }, [navState]);
 
+  
   const showSidebar = () => setSidebar(!sidebar);
-
   return (
-    <div class='sidebar'>
+    <div class='sidebar' style={{position:'relative'}}>
       <IconContext.Provider value={{ color: "undefined" }}>
         <div className="navbar">
         
@@ -77,11 +97,21 @@ function Main(props) {
             }}>
                 Practices
             </li>
+            <hr/>
+            <li id='profile' class='clickable' onClick={(e) => {
+              setNavState(e.target.id)
+              showSidebar()
+            }}>
+                Profile
+            </li>
 
           </ul>
         </nav>
       </IconContext.Provider>
+      <ReloadProvider>
       <div class='content'>{map[navState]}</div>
+      </ReloadProvider>
+      
     </div>
   );
 }

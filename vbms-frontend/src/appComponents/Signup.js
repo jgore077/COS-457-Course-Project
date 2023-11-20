@@ -62,6 +62,9 @@ function Signup() {
           setEmailError(data.email)
           setUsernameError(data.username)
           setPasswordError(data.password)
+          if(!data.password && !data.email && !data.username){
+            window.location.reload(false);
+          }
          
       });
       }).catch(function(error){

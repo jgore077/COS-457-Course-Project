@@ -147,21 +147,115 @@ def games():
         games_list.append({'game_id':row[0],'location':row[1],'description':row[2],'gamedate':row[3].strftime("%Y-%m-%d %H:%M:%S"),'opponent':row[4],'game_score':row[5]})
     return make_response(json.dumps({'games':games_list}),200)
 
-@app.route('/creategame')
+output_format = "%Y-%m-%d %H:%M:%S"
+
+@app.route('/announcements')
+def announcements():
+    announcements_list=[]
+    announcements =db.fetch_announcements()
+
+    for row in announcements:
+         announcements_list.append({'id':row[0],'description':row[3],'datetime':row[2].strftime("%Y-%m-%d %H:%M:%S")})
+    return make_response(json.dumps({'announcements':announcements_list}),200)
+
+@app.route('/creategame',methods=["POST"])
 def creategame():
-    pass
+    
+    db.insert_game(request.json['location'],request.json['description'],datetime.strptime(request.json['datetime'], "%Y-%m-%dT%H:%M:%S.%fZ").strftime(output_format),request.json['opponent'])
+    return make_response({},200)
 
-@app.route('/createpractice')
+@app.route('/createpractice',methods=["POST"])
 def createpractice():
-    pass
+   return make_response({},200)
 
-@app.route('/updategame')
+@app.route('/createannouncement',methods=["POST"])
+def createannouncement():
+   db.insert_announcement(request.json['user_id'],datetime.strptime(request.json['datetime'], "%Y-%m-%dT%H:%M:%S.%fZ").strftime(output_format),request.json['description'])
+   return make_response({},200)
+
+@app.route('/updategame',methods=["POST"])
 def updategame():
-    pass
+   
+    db.update_game(request.json['id'],request.json['location'],request.json['opponent'],datetime.strptime(request.json['datetime'], "%Y-%m-%dT%H:%M:%S.%fZ").strftime(output_format),request.json['datetime'])
+    return make_response({},200)
 
-@app.route('/updatepractice')
+@app.route('/updatepractice',methods=["POST"])
 def updatepractice():
-    pass
+    return make_response({},200)
+
+@app.route('/updateannouncement',methods=["POST"])
+def updateannouncement():
+   print(request.json['id'],request.json['description'])
+   db.update_announcement(request.json['id'],request.json['description'])
+   return make_response({},200)
+
+@app.route('/userinfo',methods=["POST"])
+def userinfo():
+    try:
+        authCookie=request.json['authCookie']
+    except Exception as e:
+        print(e)
+        return make_response({},500)
+
+    decodedAuthToken= jwt_auth(authCookie)
+    
+    if(decodedAuthToken=={}):
+        return make_response({},500)
+    print(decodedAuthToken)
+    user_info=db.fetch_all_user(decodedAuthToken['uid'])[0]
+    print(user_info)
+    return make_response(json.dumps({'username':user_info[2],'number':user_info[5],'commuter':user_info[6],'shirt':user_info[7]}),200)
+
+@app.route('/shirt',methods=["POST"])
+def shirt():
+    shirt_size=request.json['shirt']
+    try:
+        authCookie=request.json['authCookie']
+    except Exception as e:
+        print(e)
+        return make_response({},500)
+
+    decodedAuthToken= jwt_auth(authCookie)
+    
+    if(decodedAuthToken=={}):
+        return make_response({},500)
+    
+    db.update_user_shirt_size(decodedAuthToken['uid'],shirt_size)
+    return make_response({},200)
+
+@app.route('/phone',methods=["POST"])
+def phone():
+    phone_number=request.json['phone']
+    try:
+        authCookie=request.json['authCookie']
+    except Exception as e:
+        print(e)
+        return make_response({},500)
+
+    decodedAuthToken= jwt_auth(authCookie)
+    
+    if(decodedAuthToken=={}):
+        return make_response({},500)
+    
+    db.update_user_phone_number(decodedAuthToken['uid'],phone_number)
+    return make_response({},200)
+
+@app.route('/commuter',methods=["POST"])
+def commuter():
+    commuter_status=request.json['commuter']
+    try:
+        authCookie=request.json['authCookie']
+    except Exception as e:
+        print(e)
+        return make_response({},500)
+
+    decodedAuthToken= jwt_auth(authCookie)
+    
+    if(decodedAuthToken=={}):
+        return make_response({},500)
+    
+    db.update_user_commuter_status(decodedAuthToken['uid'],commuter_status)
+    return make_response({},200)
 
 if __name__ == '__main__':
     app.run(debug=True)

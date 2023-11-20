@@ -37,6 +37,9 @@ function Login() {
         {
           setUsernameError(data.username)
           setPasswordError(data.password)
+          if(!data.username && !data.password){
+            window.location.reload(false);
+          }
         });
         }).catch(function(error){
           console.log(error)
