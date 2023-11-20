@@ -60,41 +60,41 @@ def create_volleyball_announcement():
 
 
     if announcement_type == 'match_preview':
-        return (f"Published on {publish_date} - Exciting Match Preview: {team_a} vs {team_b} on {event_date} at {location}. "
+        return (f"Exciting Match Preview: {team_a} vs {team_b} on {event_date} at {location}. "
                 f"Coach {coach} comments on strategies and strengths. Star player: {player}.")
 
     elif announcement_type == 'match_result':
         winning_team = random.choice([team_a, team_b])
         score = f"{random.randint(0, 3)} - {random.randint(0, 3)}"
-        return (f"Published on {publish_date} - Match Update: {winning_team} wins with a score of {score}. "
+        return (f"Update: {winning_team} wins with a score of {score}. "
                 f"Highlights: exceptional performance by {player}. Coach {coach}'s analysis provided insights.")
 
     elif announcement_type == 'injury_report':
-        return (f"Published on {publish_date} - Injury Report: {player} of {team_a} suffered a {injury}. "
+        return (f"Injury Report: {player} of {team_a} suffered a {injury}. "
                 f"Recovery period estimated by medical team. Coach {coach} comments.")
 
     elif announcement_type == 'transfer_news':
         new_team = random.choice([team for team in teams if team != team_a])
-        return (f"Published on {publish_date} - Transfer News: {player} moves from {team_a} to {new_team}. "
+        return (f"Transfer News: {player} moves from {team_a} to {new_team}. "
                 f"This significant change is expected to alter team dynamics.")
 
     elif announcement_type == 'match_cancellation':
         reason = random.choice(cancellation_reasons)
-        return (f"Published on {publish_date} - Match Cancellation: Match between {team_a} and {team_b} on {event_date} at {location} cancelled {reason}. "
+        return (f"Match Cancellation: Match between {team_a} and {team_b} on {event_date} at {location} cancelled {reason}. "
                 f"Coach {coach} expresses thoughts.")
     elif announcement_type == 'special_event':
         event_name = random.choice(['Autograph Session', 'Fan Meet-Up', 'Charity Match', 'End-of-Season Gala'])
-        return (f"Published on {publish_date} - Special Event: Join us for the {event_name} on {event_date} at {location}. "
+        return (f"Special Event: Join us for the {event_name} on {event_date} at {location}. "
                 f"Meet your favorite players and enjoy a day full of exciting activities!")
 
     elif announcement_type == 'training_camp':
         camp_topic = random.choice(['Offensive Strategies', 'Defensive Techniques', 'Physical Conditioning', 'Team Building'])
-        return (f"Published on {publish_date} - Training Camp: {team} announces a {camp_topic} training camp on {event_date} at {location}. "
+        return (f"Training Camp: {team} announces a {camp_topic} training camp on {event_date} at {location}. "
                 f"Open for both new talents and seasoned players!")
 
     elif announcement_type == 'season_summary':
         season_highlight = random.choice(['winning the championship', 'a remarkable comeback', 'the debut of new players', 'setting a new team record'])
-        return (f"Published on {publish_date} - Season Summary: Reflecting on a season marked by {season_highlight}, "
+        return (f"Season Summary: Reflecting on a season marked by {season_highlight}, "
                 f"coach {coach} shares insights and highlights from the past year.")
 
     elif announcement_type == 'fan_interaction':
@@ -104,11 +104,11 @@ def create_volleyball_announcement():
 
     elif announcement_type == 'coach_statement':
         statement_topic = random.choice(['upcoming season', 'recent match performance', 'team strategy', 'player development'])
-        return (f"Published on {publish_date} - Coach Statement: Coach {coach} discusses {statement_topic}, "
+        return (f"Coach Statement: Coach {coach} discusses {statement_topic}, "
                 f"sharing thoughts and plans for the future of {team}.")
 
     else:
-        return f"Published on {publish_date} - General Announcement: Stay tuned for updates and news about upcoming events and matches."
+        return f"General Announcement: Stay tuned for updates and news about upcoming events and matches."
 
 # Read database configuration
 with open('config.json', 'r') as data:
@@ -124,7 +124,7 @@ num_announcements = 1000
 # CSV file and writing  the announcements
 with open('announcement.csv', mode='w', newline='', encoding="utf-8") as announcement_file:
     write_announcement = csv.writer(announcement_file, delimiter=',', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
-
+    write_announcement.writerow(["announcement_id", "publisher_uid", "date_published", "content"])
     for _ in range(num_announcements):
         announcement = create_volleyball_announcement()
         write_announcement.writerow([announcement])
