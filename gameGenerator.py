@@ -14,10 +14,10 @@ fake = Faker()
 
 games_file = open('games.csv', 'w', newline='', encoding="utf-8")
 write_game = csv.writer(games_file, delimiter=',', lineterminator='\n')
-write_game.writerow(["game_id", "location", "description", "gamedate", "opponent", "match_score"])
+write_game.writerow(["location", "description", "gamedate", "opponent", "match_score"])
 # TABLE games("game_id", "location", "description", "gamedate", "opponent", "match_score")
+#note that game_id automatically increments by one when added to the DB. no need to include in the csv file
 
-game_id = 2 # starts at 1 and go up by 1 for each recorded/scheduled game
 teams = ["University of New England", "University of Maine Orino", "University of New Hampshire", "Plymouth State University", "Merrimack College", "Colby College", "Bates College"]
 # 100 different games
 gamedate = [fake.date_time_between(start_date= "-2y", end_date= "+1y") for i in range(100)]
@@ -30,8 +30,7 @@ for date in sorted_gamedates:
     else:
         location = opponent
     description = "USM v.s. " + opponent + "! Located at " + location + " on " + str(date) + "."
-    write_game.writerow([game_id, location, description, date, opponent, None])
-    game_id += 1
+    write_game.writerow([location, description, date, opponent])
 
 games_file.close()
 #games.csv file complete, now upload to SQL table
@@ -42,17 +41,15 @@ connection = psycopg2.connect(**config)
 cursor = connection.cursor()
 vbDB = volleyBallDatabase(cursor= cursor, connection= connection)
 #
-csv_file_path = r'\Users\Megan Fleck\COS-457-Course-Project\games.csv'
+csv_file_path = './games.csv'
 
 with open(csv_file_path, 'r') as csv_file:
     csv_reader = csv.reader(csv_file)
     header = next(csv_reader)
-
-    insert_query = f"INSERT INTO vbms.games VALUES ({', '.join(['%s'] * len(header))})"
     
-    # Iterate through each row and execute the insert to the table
+    # Iterate through each row and insert using  the function defined in volleyBallDatabase.py
     for row in csv_reader:
-        cursor.execute(insert_query, row)
+        vbDB.insert_game(row[0], row[1], row[2], row[3])
 
 connection.commit()
 
@@ -116,6 +113,7 @@ for gID in gamesID:
         elif final_score == 5: # 1 - 3
             var = random.randint(1, 3)
             for i in range(1, 5):
+                score = set_win()
                 if i == var:
                     write_set.writerow([gID[0], i, score[0], score[1]]) #team1 win
                 else:
@@ -134,16 +132,14 @@ with open(csv_file_path, 'r') as csv_file:
     csv_reader = csv.reader(csv_file)
     header = next(csv_reader)
 
-    insert_query = f"INSERT INTO vbms.sets VALUES ({', '.join(['%s'] * len(header))})"
-    
-    # Iterate through each row and execute the insert to the table
+    # Iterate through each row and insert using  the function defined in volleyBallDatabase.py
     for row in csv_reader:
-        cursor.execute(insert_query, row)
+        vbDB.insert_set(row[0], row[1], row[2], row[3])
 
 connection.commit()
 cursor.close()
 connection.close()
 
-# Now update the games Table to include the match_scores, 
-# may want to do this directly in PostgreSQL
+# When a set is entered into the sets table this updates the games Table match_scores, 
+# this is done directly in PostgreSQL
 

@@ -240,16 +240,16 @@ class volleyBallDatabase():
     def insert_game(self,location,description,gamedate,opponent):
          self.cursor.execute(f"""
         INSERT INTO vbms.games(
-        location, description, gamedate, opponent, match_score)
-        VALUES ('{location}', '{description}', '{gamedate}', '{opponent}', '0-0');
+        location, description, gamedate, opponent)
+        VALUES ('{location}', '{description}', '{gamedate}', '{opponent}');
          """)
          self.connection.commit()
     
-    def insert_set(self, set_num, usm_score, opponent_score):
-        self.cursur.execute(f"""
-        INSET INTO vbms.sets(
-         set_num, usm_score, opponent_score)
-        VALUES ('{set_num}', '{usm_score}', '{opponent_score}');
+    def insert_set(self, game_id, set_num, usm_score, opponent_score):
+        self.cursor.execute(f"""
+        INSERT INTO vbms.sets(
+         game_id, set_num, usm_score, opponent_score)
+        VALUES ('{game_id}', '{set_num}', '{usm_score}', '{opponent_score}');
         """)
         self.connection.commit()
 

@@ -118,6 +118,9 @@ with open('config.json', 'r') as data:
 connection = psycopg2.connect(**config)
 cursor = connection.cursor()
 
+cursor.execute("SELECT user_id FROM vbms.users WHERE (user_id = 'admin' OR user_id = 'coach');")
+publisher_uid = cursor.fetchall()
+
 # Number of fake announcements to generate
 num_announcements = 1000
 
