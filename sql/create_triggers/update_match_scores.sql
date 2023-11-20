@@ -33,8 +33,6 @@ BEGIN
 END;
 $$;
 
-ALTER FUNCTION vbms.update_match_scores()
-    OWNER TO volleyballadmin;
 
 DROP TRIGGER IF EXISTS update_match_scores_trigger ON vbms.sets;
 
