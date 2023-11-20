@@ -128,7 +128,7 @@ for gID in gamesID:
 sets_file.close()
 #sets.csv file is complete, now upload to SQL table
 
-csv_file_path = r'\Users\Megan Fleck\COS-457-Course-Project\sets.csv'
+csv_file_path = './sets.csv'
 
 with open(csv_file_path, 'r') as csv_file:
     csv_reader = csv.reader(csv_file)
