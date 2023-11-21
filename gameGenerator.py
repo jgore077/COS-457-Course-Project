@@ -51,8 +51,6 @@ with open(csv_file_path, 'r') as csv_file:
     for row in csv_reader:
         vbDB.insert_game(row[0], row[1], row[2], row[3])
 
-connection.commit()
-
 # Our games table is now filled with 100 different games of past and future.
 # All match_score values are set as null for now. 
 # For the games in the past we will generate a table for set scores.
@@ -136,7 +134,7 @@ with open(csv_file_path, 'r') as csv_file:
     for row in csv_reader:
         vbDB.insert_set(row[0], row[1], row[2], row[3])
 
-connection.commit()
+#connection.commit()
 cursor.close()
 connection.close()
 
