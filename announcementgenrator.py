@@ -34,11 +34,10 @@ common_injuries = ['ankle sprain', 'knee injury', 'shoulder strain', 'back pain'
 
 # Function to create a volleyball-related announcement
 def create_volleyball_announcement():
-
     announcement_type = random.choice([
         'match_preview', 'match_result', 'injury_report', 'transfer_news',
-        'special_event', 'training_camp', 'season_summary', 'fan_interaction'
-        , 'coach_statement', 'match_cancellation'
+        'special_event', 'training_camp', 'season_summary', 'fan_interaction',
+        'coach_statement', 'match_cancellation'
     ])
     event_date = generate_random_date(2000, 2023)  # Date of the event
     publish_date = generate_random_date(2000, 2023)  # Date of announcement publication
@@ -50,65 +49,69 @@ def create_volleyball_announcement():
     injury = random.choice(common_injuries)
     team = random.choice(teams)
 
-    announcement_type = random.choice(['match', 'tournament', 'player'])
-    if announcement_type == 'match':
-        team_a = random.choice(teams)
-        team_b = random.choice(teams)
-        while team_b == team_a:
-            team_b = random.choice(teams)
-        return f"Upcoming match between {team_a} and {team_b} on {fake.date()} {fake.time()}"
+    # Generating a dummy user_id for demonstration purposes
+    user_id = random.randint(0000000, 1999999)
 
-
+    content = ""
     if announcement_type == 'match_preview':
-        return (f"Exciting Match Preview: {team_a} vs {team_b} on {event_date} at {location}. "
-                f"Coach {coach} comments on strategies and strengths. Star player: {player}.")
+        content = (f"Exciting Match Preview: {team_a} vs {team_b} on {event_date} at {location}. "
+                   f"Coach {coach} comments on strategies and strengths. Star player: {player}.")
 
     elif announcement_type == 'match_result':
         winning_team = random.choice([team_a, team_b])
         score = f"{random.randint(0, 3)} - {random.randint(0, 3)}"
-        return (f"Update: {winning_team} wins with a score of {score}. "
+        content= (f" Match Update: {winning_team} wins with a score of {score}. "
                 f"Highlights: exceptional performance by {player}. Coach {coach}'s analysis provided insights.")
 
     elif announcement_type == 'injury_report':
-        return (f"Injury Report: {player} of {team_a} suffered a {injury}. "
+       content= (f" Injury Report: {player} of {team_a} suffered a {injury}. "
                 f"Recovery period estimated by medical team. Coach {coach} comments.")
 
     elif announcement_type == 'transfer_news':
         new_team = random.choice([team for team in teams if team != team_a])
-        return (f"Transfer News: {player} moves from {team_a} to {new_team}. "
+        content= (f" Transfer News: {player} moves from {team_a} to {new_team}. "
                 f"This significant change is expected to alter team dynamics.")
 
     elif announcement_type == 'match_cancellation':
         reason = random.choice(cancellation_reasons)
-        return (f"Match Cancellation: Match between {team_a} and {team_b} on {event_date} at {location} cancelled {reason}. "
+        content= (f" Match Cancellation: Match between {team_a} and {team_b} on {event_date} at {location} cancelled {reason}. "
                 f"Coach {coach} expresses thoughts.")
     elif announcement_type == 'special_event':
         event_name = random.choice(['Autograph Session', 'Fan Meet-Up', 'Charity Match', 'End-of-Season Gala'])
-        return (f"Special Event: Join us for the {event_name} on {event_date} at {location}. "
+        content= (f" Special Event: Join us for the {event_name} on {event_date} at {location}. "
                 f"Meet your favorite players and enjoy a day full of exciting activities!")
 
     elif announcement_type == 'training_camp':
         camp_topic = random.choice(['Offensive Strategies', 'Defensive Techniques', 'Physical Conditioning', 'Team Building'])
-        return (f"Training Camp: {team} announces a {camp_topic} training camp on {event_date} at {location}. "
+        content= (f"Training Camp: {team} announces a {camp_topic} training camp on {event_date} at {location}. "
                 f"Open for both new talents and seasoned players!")
 
     elif announcement_type == 'season_summary':
         season_highlight = random.choice(['winning the championship', 'a remarkable comeback', 'the debut of new players', 'setting a new team record'])
-        return (f"Season Summary: Reflecting on a season marked by {season_highlight}, "
+        content= (f" Season Summary: Reflecting on a season marked by {season_highlight}, "
                 f"coach {coach} shares insights and highlights from the past year.")
 
     elif announcement_type == 'fan_interaction':
         interaction_type = random.choice(['online Q&A session', 'fan poll', 'social media contest', 'ticket giveaway'])
-        return (f"Published on {publish_date} - Fan Interaction: Engage with {team} through our {interaction_type}! "
+        content= (f"Fan Interaction: Engage with {team} through our {interaction_type}! "
                 f"Check out our social channels for more details and get involved!")
 
     elif announcement_type == 'coach_statement':
         statement_topic = random.choice(['upcoming season', 'recent match performance', 'team strategy', 'player development'])
-        return (f"Coach Statement: Coach {coach} discusses {statement_topic}, "
+        content= (f"Coach Statement: Coach {coach} discusses {statement_topic}, "
                 f"sharing thoughts and plans for the future of {team}.")
 
     else:
-        return f"General Announcement: Stay tuned for updates and news about upcoming events and matches."
+        content= f"General Announcement: Stay tuned for updates and news about upcoming events and matches."
+
+    return user_id, publish_date.strftime("%Y-%m-%d"), content
+
+def insert_announcement_to_db(cursor, user_id, publish_date, content):
+    insert_query = """
+    INSERT INTO announcements (publisher_uid, date_published, content)
+    VALUES (%s, %s, %s);
+    """
+    cursor.execute(insert_query, (user_id, publish_date, content))
 
 # Read database configuration
 with open('config.json', 'r') as data:
@@ -118,20 +121,15 @@ with open('config.json', 'r') as data:
 connection = psycopg2.connect(**config)
 cursor = connection.cursor()
 
-cursor.execute("SELECT user_id FROM vbms.users WHERE (user_id = 'admin' OR user_id = 'coach');")
-publisher_uid = cursor.fetchall()
-
 # Number of fake announcements to generate
 num_announcements = 1000
 
-# CSV file and writing  the announcements
-with open('announcement.csv', mode='w', newline='', encoding="utf-8") as announcement_file:
-    write_announcement = csv.writer(announcement_file, delimiter=',', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
-    write_announcement.writerow(["announcement_id", "publisher_uid", "date_published", "content"])
-    for _ in range(num_announcements):
-        announcement = create_volleyball_announcement()
-        write_announcement.writerow([announcement])
+# Generate and insert announcements
+for _ in range(num_announcements):
+    user_id, publish_date, content = create_volleyball_announcement()
+    insert_announcement_to_db(cursor, user_id, publish_date, content)
 
-# Close the connection
+# Commit changes and close the connection
+connection.commit()
 cursor.close()
 connection.close()
