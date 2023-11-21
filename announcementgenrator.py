@@ -4,7 +4,7 @@ from faker import Faker
 import random
 import datetime
 import psycopg2
-
+from volleyBallDatabase import volleyBallDatabase
 # Initialize Faker
 fake = Faker()
 
@@ -106,12 +106,12 @@ def create_volleyball_announcement():
 
     return user_id, publish_date.strftime("%Y-%m-%d"), content
 
-def insert_announcement_to_db(cursor, user_id, publish_date, content):
-    insert_query = """
-    INSERT INTO announcements (publisher_uid, date_published, content)
+def insert_announcement_to_db(cursor, user_id, publish_date, content,ids):
+    insert_query =f"""
+    INSERT INTO vbms.announcements (publisher_uid, date_published, content)
     VALUES (%s, %s, %s);
     """
-    cursor.execute(insert_query, (user_id, publish_date, content))
+    cursor.execute(insert_query, (random.choice(ids), publish_date, content))
 
 # Read database configuration
 with open('config.json', 'r') as data:
@@ -120,14 +120,15 @@ with open('config.json', 'r') as data:
 # Connect to the database
 connection = psycopg2.connect(**config)
 cursor = connection.cursor()
-
+db=volleyBallDatabase(cursor=cursor,connection=connection)
+users =db.fetch_users()
 # Number of fake announcements to generate
 num_announcements = 1000
 
 # Generate and insert announcements
 for _ in range(num_announcements):
     user_id, publish_date, content = create_volleyball_announcement()
-    insert_announcement_to_db(cursor, user_id, publish_date, content)
+    insert_announcement_to_db(cursor, user_id, publish_date, content,[user[0] for user in users])
 
 # Commit changes and close the connection
 connection.commit()
