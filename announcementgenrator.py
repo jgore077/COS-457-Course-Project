@@ -5,6 +5,7 @@ import random
 import datetime
 import psycopg2
 from volleyBallDatabase import volleyBallDatabase
+from volleyBallDatabase import volleyBallDatabase
 # Initialize Faker
 fake = Faker()
 
@@ -12,6 +13,12 @@ def generate_random_date(start_year, end_year):
     start_date = datetime.datetime(start_year, 1, 1)
     end_date = datetime.datetime(end_year, 12, 31)
     return fake.date_between(start_date=start_date, end_date=end_date)
+
+# Fetch user IDs from the database
+def fetch_user_ids(cursor):
+    fetch_query = "SELECT user.user_id FROM vbms.users;"
+    cursor.execute(fetch_query)
+    return [row[0] for row in cursor.fetchall()]
 
 # Volleyball-specific content
 teams = ['Spikers', 'Aces', 'Blockers', 'Diggers', 'Setters', 'Hitters']
@@ -113,11 +120,10 @@ def insert_announcement_to_db(cursor, user_id, publish_date, content,ids):
     """
     cursor.execute(insert_query, (random.choice(ids), publish_date, content))
 
-# Read database configuration
+# Database configuration and connection
 with open('config.json', 'r') as data:
     config = json.load(data)
 
-# Connect to the database
 connection = psycopg2.connect(**config)
 cursor = connection.cursor()
 db=volleyBallDatabase(cursor=cursor,connection=connection)
