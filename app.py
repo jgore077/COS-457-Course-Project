@@ -158,6 +158,15 @@ def announcements():
          announcements_list.append({'id':row[0],'description':row[3],'datetime':row[2].strftime("%Y-%m-%d %H:%M:%S")})
     return make_response(json.dumps({'announcements':announcements_list}),200)
 
+@app.route('/practices')
+def practices():
+    practice_list=[]
+    practices =db.fetch_practice()
+
+    for row in practices:
+         practice_list.append({'id':row[0],'description':row[1],'location':row[2],'datetime':row[3].strftime("%Y-%m-%d %H:%M:%S")})
+    return make_response(json.dumps({'practices':practice_list}),200)
+
 @app.route('/creategame',methods=["POST"])
 def creategame():
     

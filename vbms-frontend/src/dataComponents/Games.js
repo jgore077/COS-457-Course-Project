@@ -55,7 +55,7 @@ function Games(props) {
 
 // If the user is an administrator then the game should be rendered with a x in the top right corner so that they can cancel it same goes for announcements
 // their should also be a pencil to edit existing games
-function Game(prop) {
+export function Game(prop) {
   function convertTo12HourFormat(time24) {
     // Split the input time string into hours and minutes
     const [hour, minute,seconds] = time24.split(':');
