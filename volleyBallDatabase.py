@@ -342,3 +342,14 @@ class volleyBallDatabase():
         """
         self.cursor.execute(query, (date_published, date_published, content, f'%{content}%'))
         return self.cursor.fetchall()
+    
+if __name__=="__main__":
+    with open('config.json','r') as data:
+        config=json.load(data)
+
+    connection = psycopg2.connect(**config)
+
+    cursor =connection.cursor()
+    db = volleyBallDatabase(cursor=cursor,connection=connection)
+    
+    db.search_matches('for')
