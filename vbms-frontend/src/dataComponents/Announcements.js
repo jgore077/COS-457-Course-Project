@@ -41,7 +41,7 @@ function Announcements(props) {
   )
 }
 
-function Announcement(prop) {
+export function Announcement(prop) {
   function convertTo12HourFormat(time24) {
     // Split the input time string into hours and minutes
     const [hour, minute,seconds] = time24.split(':');

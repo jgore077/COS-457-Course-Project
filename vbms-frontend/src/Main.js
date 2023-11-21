@@ -39,10 +39,10 @@ function Main(props) {
     'games':<Games authCookie={props.authCookie} decodedAuthToken={props.decodedAuthToken} sidebarState={sidebar} game={true}/>,
     'announcements':<Announcements authCookie={props.authCookie} decodedAuthToken={props.decodedAuthToken} sidebarState={sidebar}/>,
     'practices':<Practices authCookie={props.authCookie} decodedAuthToken={props.decodedAuthToken} sidebarState={sidebar} />,
-    'search':<Search/>,
+    'search':<Search authCookie={props.authCookie} decodedAuthToken={props.decodedAuthToken} sidebarState={sidebar}/>,
     'profile':<Profile authCookie={props.authCookie} decodedAuthToken={props.decodedAuthToken} sidebarState={sidebar}/>
   }
-  let [navState,setNavState]=useState('games')
+  let [navState,setNavState]=useState('search')
   
 
   useEffect(() => {
