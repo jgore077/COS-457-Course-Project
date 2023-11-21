@@ -320,3 +320,25 @@ class volleyBallDatabase():
         WHERE announcement_id={id};
         """)
         self.connection.commit()
+
+    #Match Search functionality 
+    def search_matches(self, date=None, location=None):
+        query = """
+        SELECT g.gamedate, g.location
+        FROM games g
+        WHERE (%s IS NULL OR g.gamedate = %s)
+          AND (%s IS NULL OR g.location ILIKE %s);
+        """
+        self.cursor.execute(query, (date, date, location, f'%{location}%'))
+        return self.cursor.fetchall()
+    
+    #News Search Functionality 
+    def search_news(self, date_published=None, content=None):
+        query = """
+        SELECT announcement_id, publisher_uid, date_published, content
+        FROM announcements
+        WHERE (%s IS NULL OR date_published::date = %s::date)
+          AND (%s IS NULL OR content ILIKE %s);
+        """
+        self.cursor.execute(query, (date_published, date_published, content, f'%{content}%'))
+        return self.cursor.fetchall()

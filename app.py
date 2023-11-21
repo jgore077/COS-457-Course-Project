@@ -256,6 +256,28 @@ def commuter():
     
     db.update_user_commuter_status(decodedAuthToken['uid'],commuter_status)
     return make_response({},200)
+ 
+ # Match search functionality
+@app.route('/search_matches', methods=['GET'])
+def search_matches():
+    date = request.args.get('date')
+    location = request.args.get('location')
+
+    matches = db.search_matches(date, location)
+    matches_list = [{'date': match[0].strftime("%Y-%m-%d"), 'location': match[1]} for match in matches]
+    
+    return jsonify(matches_list)
+
+#News Search 
+@app.route('/search_news', methods=['GET'])
+def search_news():
+    date_published = request.args.get('date_published')
+    content = request.args.get('content')
+
+    news_items = db.search_news(date_published, content)
+    news_list = [{'id': item[0], 'publisher_uid': item[1], 'date_published': item[2].strftime("%Y-%m-%d"), 'content': item[3]} for item in news_items]
+    
+    return jsonify(news_list)
 
 if __name__ == '__main__':
     app.run(debug=True)
