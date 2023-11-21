@@ -61,7 +61,7 @@ connection = psycopg2.connect(**config)
 cursor = connection.cursor()
 vbDB = volleyBallDatabase(cursor= cursor, connection= connection)
 
-csv_file_path = r'\Users\Megan Fleck\COS-457-Course-Project\user.csv'
+csv_file_path = './user.csv'
 
 with open(csv_file_path, 'r') as csv_file:
     csv_reader = csv.reader(csv_file)
