@@ -72,7 +72,7 @@ Tailored Announcements: Custom announcements related to team activities, achieve
 PostgreSQL Database: The backend of VBMS is powered by a PostgreSQL database. The data generated through the above methods is formatted and structured for compatibility with this database system.
 Data Structuring: The structured data from various sources is organized into a format that aligns with the database schema of VBMS, ensuring seamless integration and retrieval.
 
-<h6>Usage and Future Work</h6>
+<h4>Usage and Future Work</h4>
 Data Integration: The CSV files are designed for easy import into the VBMS's PostgreSQL database.
 Testing and Simulation: Data can be used for system testing, user training, and simulating real-world scenarios in volleyball team management.
 Extensibility: The structured data format and comprehensive documentation make it easy to extend or modify data for future enhancements or new features in the VBMS.
