@@ -4,6 +4,7 @@ from faker import Faker
 import random
 import datetime
 import psycopg2
+from volleyBallDatabase import volleyBallDatabase
 
 # Initialize Faker
 fake = Faker()
@@ -12,6 +13,12 @@ def generate_random_date(start_year, end_year):
     start_date = datetime.datetime(start_year, 1, 1)
     end_date = datetime.datetime(end_year, 12, 31)
     return fake.date_between(start_date=start_date, end_date=end_date)
+
+# Fetch user IDs from the database
+def fetch_user_ids(cursor):
+    fetch_query = "SELECT user.user_id FROM vbms.users;"
+    cursor.execute(fetch_query)
+    return [row[0] for row in cursor.fetchall()]
 
 # Volleyball-specific content
 teams = ['Spikers', 'Aces', 'Blockers', 'Diggers', 'Setters', 'Hitters']
@@ -106,28 +113,28 @@ def create_volleyball_announcement():
 
     return user_id, publish_date.strftime("%Y-%m-%d"), content
 
-def insert_announcement_to_db(cursor, user_id, publish_date, content):
+def insert_announcement_to_db(cursor, publisher_uid, publish_date, content):
     insert_query = """
-    INSERT INTO announcements (publisher_uid, date_published, content)
+    INSERT INTO vbms.announcements (publisher_uid, date_published, content)
     VALUES (%s, %s, %s);
     """
-    cursor.execute(insert_query, (user_id, publish_date, content))
+    cursor.execute(insert_query, (publisher_uid, publish_date, content))
 
-# Read database configuration
+# Database configuration and connection
 with open('config.json', 'r') as data:
     config = json.load(data)
 
-# Connect to the database
 connection = psycopg2.connect(**config)
 cursor = connection.cursor()
+vbDB = volleyBallDatabase(cursor=cursor, connection=connection)
 
-# Number of fake announcements to generate
-num_announcements = 1000
+# Fetch user IDs
+publisher_uids = fetch_user_ids(cursor)
 
 # Generate and insert announcements
-for _ in range(num_announcements):
-    user_id, publish_date, content = create_volleyball_announcement()
-    insert_announcement_to_db(cursor, user_id, publish_date, content)
+for _ in range(1000):  # Number of fake announcements to generate
+    publisher_uid, publish_date, content = create_volleyball_announcement(publisher_uids)
+    insert_announcement_to_db(cursor, publisher_uid, publish_date, content)
 
 # Commit changes and close the connection
 connection.commit()
