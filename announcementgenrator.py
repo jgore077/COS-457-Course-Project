@@ -106,6 +106,13 @@ def create_volleyball_announcement():
 
     return user_id, publish_date.strftime("%Y-%m-%d"), content
 
+def insert_announcement_to_db(cursor, user_id, publish_date, content):
+    insert_query = """
+    INSERT INTO announcements (publisher_uid, date_published, content)
+    VALUES (%s, %s, %s);
+    """
+    cursor.execute(insert_query, (user_id, publish_date, content))
+
 # Read database configuration
 with open('config.json', 'r') as data:
     config = json.load(data)
@@ -117,15 +124,12 @@ cursor = connection.cursor()
 # Number of fake announcements to generate
 num_announcements = 1000
 
-# CSV file and writing the announcements
-with open('announcement.csv', mode='w', newline='', encoding="utf-8") as announcement_file:
-    write_announcement = csv.writer(announcement_file, delimiter=',', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
-    write_announcement.writerow(["user_id", "date_published", "content"])
+# Generate and insert announcements
+for _ in range(num_announcements):
+    user_id, publish_date, content = create_volleyball_announcement()
+    insert_announcement_to_db(cursor, user_id, publish_date, content)
 
-    for _ in range(num_announcements):
-        user_id, publish_date, content = create_volleyball_announcement()
-        write_announcement.writerow([user_id, publish_date, content])
-
-# Close the connection
+# Commit changes and close the connection
+connection.commit()
 cursor.close()
 connection.close()
