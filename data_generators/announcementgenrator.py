@@ -5,7 +5,6 @@ import random
 import datetime
 import psycopg2
 from volleyBallDatabase import volleyBallDatabase
-from volleyBallDatabase import volleyBallDatabase
 # Initialize Faker
 fake = Faker()
 
