@@ -325,7 +325,7 @@ class volleyBallDatabase():
     def search_matches(self, date=None, location=None):
         query = """
         SELECT g.gamedate, g.location
-        FROM games g
+        FROM vbms.games g
         WHERE (%s IS NULL OR g.gamedate = %s)
           AND (%s IS NULL OR g.location ILIKE %s);
         """
@@ -336,7 +336,7 @@ class volleyBallDatabase():
     def search_news(self, date_published=None, content=None):
         query = """
         SELECT announcement_id, publisher_uid, date_published, content
-        FROM announcements
+        FROM vbms.announcements
         WHERE (%s IS NULL OR date_published::date = %s::date)
           AND (%s IS NULL OR content ILIKE %s);
         """
@@ -352,4 +352,5 @@ if __name__=="__main__":
     cursor =connection.cursor()
     db = volleyBallDatabase(cursor=cursor,connection=connection)
     
-    db.search_matches('for')
+    print(db.search_news(content='Match Cancellation'))
+    
