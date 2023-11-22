@@ -321,6 +321,38 @@ class volleyBallDatabase():
         """)
         self.connection.commit()
 
+    #Precision search(takes tables and attribute you want to search under)
+    # This requires specified table and at least one attribute. Can do two attributes and values as well.
+    #does not include sets table search as this is not needed
+    def precision_search(self, table, attribute1, value1=None, attribute2=None, value2=None):
+        # Validate that the provided table and attribute are valid
+        valid_tables = ["announcements", "attendance", "games", "practice", "users"]  # Add more tables as needed
+        valid_attributes = {
+            "announcements": ["announcement_id", "publisher_uid", "date_published", "content"], #announcement_id not included
+            "attendance": ["practice_id", "user_id", "attendance_status"],
+            "games": ["game_id", "location", "description", "gamedate", "opponent", "match_score"],
+            "practice": ["practice_id", "description", "location", "date"],
+            "users": ["user_id", "email", "uname", "role", "phone_num", "is_commuter", "shirt_size"], #pword not included
+        }
+        #if provided table/attribute not valid, raise error
+        if table not in valid_tables:
+            raise ValueError(f"Invalid table: {table}. Valid tables are {valid_tables}")
+
+        if attribute1 not in valid_attributes.get(table, []):
+            raise ValueError(f"Invalid attribute for table {table}: {attribute1}. Valid attributes are {valid_attributes.get(table, [])}")
+        if attribute2 is not None and attribute2 not in valid_attributes.get(table, []):
+            raise ValueError(f"Invalid second attribute for table {table}: {attribute2}. Valid attributes are {valid_attributes.get(table, [])}")
+        
+        if attribute2 is not None:
+            query = f"SELECT {attribute1}, {attribute2} FROM {table} WHERE {attribute1} = %s AND {attribute2} = %s;"
+            self.cursor.execute(query, (value1, value2))
+        else:
+            query = f"SELECT {attribute1} FROM {table} WHERE {attribute1} = %s;"
+            self.cursor.execute(query, (value1,))
+
+        return self.cursor.fetchall()
+
+
     #Match Search functionality 
     def search_matches(self, date=None, location=None):
         query = """
