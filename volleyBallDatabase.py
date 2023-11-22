@@ -320,38 +320,58 @@ class volleyBallDatabase():
         WHERE announcement_id={id};
         """)
         self.connection.commit()
+    #--------------------------- Search Functions ------------------
 
-    #Precision search(takes tables and attribute you want to search under)
+    #Precision Search Functionality
     # This requires specified table and at least one attribute. Can do two attributes and values as well.
     #does not include sets table search as this is not needed
     def precision_search(self, table, attribute1, value1=None, attribute2=None, value2=None):
         # Validate that the provided table and attribute are valid
-        valid_tables = ["announcements", "attendance", "games", "practice", "users"]  # Add more tables as needed
+        valid_tables = ["announcements", "attendance", "games", "practice", "users"]
         valid_attributes = {
-            "announcements": ["announcement_id", "publisher_uid", "date_published", "content"], #announcement_id not included
+            "announcements": ["publisher_uid", "date_published", "content"], #announcement_id not included
             "attendance": ["practice_id", "user_id", "attendance_status"],
-            "games": ["game_id", "location", "description", "gamedate", "opponent", "match_score"],
+            "games": ["location", "description", "gamedate", "opponent", "match_score"],#game_id not included
             "practice": ["practice_id", "description", "location", "date"],
             "users": ["user_id", "email", "uname", "role", "phone_num", "is_commuter", "shirt_size"], #pword not included
         }
         #if provided table/attribute not valid, raise error
         if table not in valid_tables:
             raise ValueError(f"Invalid table: {table}. Valid tables are {valid_tables}")
-
         if attribute1 not in valid_attributes.get(table, []):
             raise ValueError(f"Invalid attribute for table {table}: {attribute1}. Valid attributes are {valid_attributes.get(table, [])}")
         if attribute2 is not None and attribute2 not in valid_attributes.get(table, []):
             raise ValueError(f"Invalid second attribute for table {table}: {attribute2}. Valid attributes are {valid_attributes.get(table, [])}")
         
         if attribute2 is not None:
-            query = f"SELECT {attribute1}, {attribute2} FROM {table} WHERE {attribute1} = %s AND {attribute2} = %s;"
+            query = f"SELECT * FROM {table} WHERE {attribute1} = %s AND {attribute2} = %s;"
             self.cursor.execute(query, (value1, value2))
         else:
-            query = f"SELECT {attribute1} FROM {table} WHERE {attribute1} = %s;"
+            query = f"SELECT * FROM {table} WHERE {attribute1} = %s;"
             self.cursor.execute(query, (value1,))
 
         return self.cursor.fetchall()
-
+    
+    #Broad Search Functionality
+    #allows user to input and array of values to search by and returns results from all tables in order of most to least matches
+    def broad_search(self, values):
+        tables_and_columns = {
+            "announcements": ["publisher_uid", "date_published", "content"], #announcement_id not included
+            "attendance": ["user_id", "attendance_status"], #practice_id not included
+            "games": ["location", "description", "opponent", "match_score"], #game_id not included
+            "practice": ["description", "location", "date"], #practice_id not included
+            "users": ["user_id", "email", "uname", "role", "phone_num", "is_commuter", "shirt_size"], #pword not included
+        }
+        queries = []
+        for table, columns in tables_and_columns.items():
+            for column in columns:
+                queries.append(f"SELECT *, {len(values)} as search_strength FROM {table} WHERE {column} ILIKE ANY(%s);")
+        query = " UNION ".join(queries)
+        data = [['%' + value + '%' for value in values]] * len(queries)
+        self.cursor.execute(query, data)
+        results = self.cursor.fetchall()
+        results.sort(key=lambda x: x[-1], reverse=True) # Order the results by search_strength in descending order so rows with more matches appear at top
+        return results
 
     #Match Search functionality 
     def search_matches(self, date=None, location=None):
