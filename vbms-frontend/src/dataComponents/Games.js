@@ -4,8 +4,8 @@ import dayjs from 'dayjs';
 import * as AiIcons from "react-icons/ai";
 import * as FaIcons from "react-icons/fa";
 import './dataComponents.css'
-import { esES } from '@mui/x-date-pickers';
-function Games(props) {
+
+export function Games(props) {
 
   const [gamesList,setGamesList]=useState([])
   useEffect(()=>{
@@ -19,6 +19,7 @@ function Games(props) {
       {
         
         setGamesList(data.games)
+        console.log(data.games)
       });
       }).catch(function(error){
         console.log(error)
@@ -173,5 +174,3 @@ export function Incrementer() {
 }
 
 
-
-export default Games

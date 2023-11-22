@@ -1,5 +1,5 @@
 import React,{useState} from 'react'
-import Games from './dataComponents/Games'
+import {Games} from './dataComponents/Games'
 import Announcements from './dataComponents/Announcements'
 import Popup from 'reactjs-popup';
 import Modal from './Modal';

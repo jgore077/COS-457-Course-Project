@@ -13,7 +13,7 @@ function Players(props) {
       response.json().then(function(data)
       {
         setPlayerList(data.players)
-        console.log(playerList)
+        console.log(data.players)
       });
       }).catch(function(error){
         console.log(error)

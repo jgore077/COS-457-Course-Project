@@ -14,7 +14,7 @@ function Practices(props) {
     }).then((response)=>{
       response.json().then(function(data)
       {
-        console.log(data)
+        console.log(data.practices)
         setPracticeList(data.practices)
       });
       }).catch(function(error){

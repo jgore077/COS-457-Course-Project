@@ -20,6 +20,7 @@ function Announcements(props) {
       response.json().then(function(data)
       {
         setAnnouncementsList(data.announcements)
+        console.log(data.announcements)
       });
       }).catch(function(error){
         console.log(error)

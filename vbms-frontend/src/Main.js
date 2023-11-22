@@ -5,7 +5,7 @@ import "./Sidebar.css";
 import { IconContext } from "react-icons";
 import Players from "./dataComponents/Players";
 import Announcements from "./dataComponents/Announcements";
-import Games from "./dataComponents/Games";
+import {Games} from "./dataComponents/Games";
 import Search from "./dataComponents/Search";
 import Practices from "./dataComponents/Practices";
 import Profile from "./dataComponents/Profile";
@@ -39,7 +39,10 @@ function Main(props) {
     'games':<Games authCookie={props.authCookie} decodedAuthToken={props.decodedAuthToken} sidebarState={sidebar} game={true}/>,
     'announcements':<Announcements authCookie={props.authCookie} decodedAuthToken={props.decodedAuthToken} sidebarState={sidebar}/>,
     'practices':<Practices authCookie={props.authCookie} decodedAuthToken={props.decodedAuthToken} sidebarState={sidebar} />,
-    'search':<Search authCookie={props.authCookie} decodedAuthToken={props.decodedAuthToken} sidebarState={sidebar}/>,
+    'search':<Search authCookie={props.authCookie} decodedAuthToken={{
+      "uid": 1,
+      "role": "admin"
+    }} sidebarState={sidebar}/>,
     'profile':<Profile authCookie={props.authCookie} decodedAuthToken={props.decodedAuthToken} sidebarState={sidebar}/>
   }
   let [navState,setNavState]=useState('search')
