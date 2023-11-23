@@ -1,6 +1,8 @@
 import psycopg2
 import json
 
+from datetime import datetime
+
 create_announcements="""
 -- Table: vbms.announcements
 
@@ -343,14 +345,52 @@ class volleyBallDatabase():
         if attribute2 is not None and attribute2 not in valid_attributes.get(table, []):
             raise ValueError(f"Invalid second attribute for table {table}: {attribute2}. Valid attributes are {valid_attributes.get(table, [])}")
         
+        table_name = 'vbms.' + table
+        value1 = self.cast_value(attribute1, value1) #make sure value1 matches data type of attribute1
         if attribute2 is not None:
-            query = f"SELECT * FROM {table} WHERE {attribute1} = %s AND {attribute2} = %s;"
-            self.cursor.execute(query, (value1, value2))
+            if value2 is not None:
+                query = f"SELECT * FROM {table_name} WHERE {attribute1} = %s AND {attribute2} = %s;"
+                value2 = self.cast_value(attribute2, value2)
+                self.cursor.execute(query, (value1, value2))
+            else:#if value2 is left blank but we have specified 2 valid attributes, it will search each attribute using value1 for both.
+                query = f"SELECT * FROM {table_name} WHERE {attribute1} = %s AND {attribute2} = %s;"
+                value2 = self.cast_value(attribute2, value1)#returns value1 as the data type of attribute2
+                self.cursor.execute(query, (value1, value2))
         else:
-            query = f"SELECT * FROM {table} WHERE {attribute1} = %s;"
+            query = f"SELECT * FROM {table_name} WHERE {attribute1} = %s;"
             self.cursor.execute(query, (value1,))
-
         return self.cursor.fetchall()
+    
+    #casting method for searches
+    def cast_value(self, attribute, value, date_format="%Y-%m-%d %H:%M:%S"):
+        if attribute in ["date_published", "date", "gamedate"]:
+            try:
+                if " " in value:  # Check if there's a space in the value, indicating both date and time
+                    return datetime.strptime(value, date_format)
+                else:
+                    return datetime.strptime(value, "%Y-%m-%d").replace(hour=0, minute=0, second=0)
+                ### EDIT needed, this will only search at time 0:0:0 if no time specified for date, need to fix this
+            except ValueError:
+                # Handle the case where the string is not in the expected format
+                raise ValueError(f"Error: Unable to parse {value} to datetime using format {date_format}")
+        elif attribute in ["is_commuter"]:
+            return value.lower() in ['true', 'yes'] #will accept TRUE, True, YeS, etc. false if anything else
+        elif attribute in ["user_id", "publisher_uid", "practice_id"]:
+            try:
+                return int(value)# Attempt to cast the string to an integer
+            except ValueError:
+                raise ValueError(f"Error: Unable to cast {value} to integer for attribute {attribute}")
+        elif attribute in ["attendance_status"]:
+            if str(value).lower() in ["2", "present", "two"]:
+                return 2
+            elif str(value).lower() in ["1", "excuse", "excused", "one"]:
+                return 1
+            elif str(value).lower() in ["0", "absent", "zero"]:
+                return 0
+            else:
+                raise ValueError(f"Error: Invalid entry, {value}, for attribute {attribute}. 2-present, 1-excused, 0-absent")
+        else:
+            return str(value) #returns value as string
     
     #Broad Search Functionality
     #allows user to input and array of values to search by and returns results from all tables in order of most to least matches
@@ -363,11 +403,14 @@ class volleyBallDatabase():
             "users": ["user_id", "email", "uname", "role", "phone_num", "is_commuter", "shirt_size"], #pword not included
         }
         queries = []
+        data = []
         for table, columns in tables_and_columns.items():
-            for column in columns:
-                queries.append(f"SELECT *, {len(values)} as search_strength FROM {table} WHERE {column} ILIKE ANY(%s);")
+            table_name = 'vbms.' + table
+            #placeholders = ', '.join(['%s'] * len(columns))
+            for value in values: #EDIT NEEDED: need to make it so that it only searches with correct data type
+                queries.append(f"SELECT *, {len(values)} as search_strength FROM {table_name} WHERE {' OR '.join([f'{column} ILIKE %s' for column in columns])}")
+                data.extend(['%' + value + '%' for _ in columns])
         query = " UNION ".join(queries)
-        data = [['%' + value + '%' for value in values]] * len(queries)
         self.cursor.execute(query, data)
         results = self.cursor.fetchall()
         results.sort(key=lambda x: x[-1], reverse=True) # Order the results by search_strength in descending order so rows with more matches appear at top
@@ -404,5 +447,9 @@ if __name__=="__main__":
     cursor =connection.cursor()
     db = volleyBallDatabase(cursor=cursor,connection=connection)
     
-    print(db.search_news(content='Match Cancellation'))
-    
+    print(db.search_news(content='Match Cancelation'))
+
+    #testing precision_search
+    print(db.precision_search('users', 'role', 'coach'))
+    #testing broad_search
+    print(db.broad_search(["megan.fleck@maine.edu"]))
