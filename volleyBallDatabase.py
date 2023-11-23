@@ -415,6 +415,44 @@ class volleyBallDatabase():
         results = self.cursor.fetchall()
         results.sort(key=lambda x: x[-1], reverse=True) # Order the results by search_strength in descending order so rows with more matches appear at top
         return results
+    
+    #search announcements
+    def search_announcement(self, value):
+        query = """
+        DO $$
+        DECLARE 
+            SearchStr VARCHAR(100);
+        BEGIN
+            SearchStr := {value};
+
+            SELECT *
+   	        FROM vbms.announcements
+            WHERE CAST(publisher_uid AS VARCHAR) ILIKE SearchStr 
+                OR 
+                OR 
+        """
+    
+    #search each attribute of users table for given str
+    def search_users(self, value):
+        query = """
+        DO $$ 
+        DECLARE 
+            SearchStr VARCHAR(100);
+        BEGIN
+            SearchStr := {value};
+
+            SELECT *
+   	        FROM vbms.users
+   	        WHERE CAST(user_id AS VARCHAR) ILIKE SearchStr 
+               	OR email ILIKE SearchStr 
+	            OR uname ILIKE SearchStr 
+                OR role ILIKE SearchStr 
+       	        OR phone_num ILIKE SearchStr 
+               	OR CAST(is_commuter AS VARCHAR) = SearchStr 
+       	        OR shirt_size ILIKE SearchStr;
+        END $$;
+        """
+        return self.cursor.fetchall()
 
     #Match Search functionality 
     def search_matches(self, date=None, location=None):
@@ -452,4 +490,4 @@ if __name__=="__main__":
     #testing precision_search
     print(db.precision_search('users', 'role', 'coach'))
     #testing broad_search
-    print(db.broad_search(["megan.fleck@maine.edu"]))
+    print(db.broad_search(["1078735"]))
