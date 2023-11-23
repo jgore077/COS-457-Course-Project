@@ -1,6 +1,6 @@
 import React,{useEffect,useState} from 'react'
 import './dataComponents.css'
-function Players(props) {
+export function Players(props) {
   const [playerList,setPlayerList]=useState([])
   // Theres an error in this function but I cant figure out the cause
   useEffect(()=>{
@@ -46,4 +46,3 @@ export function Player(prop){
       )
 }
 
-export default Players

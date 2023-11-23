@@ -3,7 +3,8 @@ import Modal from '../Modal'
 import * as AiIcons from "react-icons/ai";
 import * as FaIcons from "react-icons/fa";
 import dayjs from 'dayjs';
-function Practices(props) {
+
+export function Practices(props) {
   const [practiceList,setPracticeList]=useState([])
   useEffect(()=>{
     fetch('/practices',{
@@ -91,4 +92,3 @@ export function Practice(prop) {
     )
   }
 
-export default Practices

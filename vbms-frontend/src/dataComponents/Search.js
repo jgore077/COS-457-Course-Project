@@ -2,10 +2,10 @@ import React,{useState,useEffect,useRef}from 'react'
 
 import './dataComponents.css'
 
-import Player from './Players'
-import Announcement from './Announcements'
+import {Player} from './Players'
+import {Announcement} from './Announcements'
 import {Game} from './Games'
-import Practice from './Practices'
+import {Practice} from './Practices'
 
 import { FaSearch,FaAngleRight } from "react-icons/fa";
 import { TextField,InputAdornment,Select,MenuItem,InputLabel,FormControl,FormHelperText } from '@mui/material'
@@ -205,12 +205,19 @@ function Result(props) {
         })
         break
       case 'Announcements':
-        // code block
+        rendered_data=props.data.map((element) =>  {
+          return <Announcement role={props.decodedAuthToken.role} datetime={element.datetime} description={element.description} id={element.id}/>
+        })
         break;
       case 'Practices':
-        // code block
+        rendered_data=props.data.map((element) =>  {
+          return <Practice role={props.decodedAuthToken.role} practice={element}/>
+        })
         break;
       default:
+        rendered_data=props.data.map((element) =>  {
+          return <Player username={element.username} email={element.email}/>
+        })
         break;
     } 
     return rendered_data

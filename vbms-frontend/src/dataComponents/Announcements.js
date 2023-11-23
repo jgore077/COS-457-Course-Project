@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import * as AiIcons from "react-icons/ai";
 import * as FaIcons from "react-icons/fa";
 import './dataComponents.css'
-function Announcements(props) {
+export function Announcements(props) {
   console.log(props)
   const [announcementsList,setAnnouncementsList]=useState([])
   
@@ -89,4 +89,3 @@ export function Announcement(prop) {
   )
 }
 
-export default Announcements
