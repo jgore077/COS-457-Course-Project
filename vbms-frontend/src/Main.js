@@ -3,11 +3,11 @@ import * as FaIcons from "react-icons/fa";
 import * as AiIcons from "react-icons/ai";
 import "./Sidebar.css";
 import { IconContext } from "react-icons";
-import Players from "./dataComponents/Players";
-import Announcements from "./dataComponents/Announcements";
+import {Players} from "./dataComponents/Players";
+import {Announcements} from "./dataComponents/Announcements";
 import {Games} from "./dataComponents/Games";
 import Search from "./dataComponents/Search";
-import Practices from "./dataComponents/Practices";
+import {Practices} from "./dataComponents/Practices";
 import Profile from "./dataComponents/Profile";
 
 const ReloadContext = createContext();
