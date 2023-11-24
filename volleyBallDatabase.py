@@ -323,7 +323,74 @@ class volleyBallDatabase():
         """)
         self.connection.commit()
     #--------------------------- Search Functions ------------------
-
+    #------- Basic Table Searches------
+      #search announcements
+    def search_announcement(self, value):
+        query = """
+        SELECT *
+   	    FROM vbms.announcements
+        WHERE 
+            CAST(publisher_uid AS VARCHAR) ILIKE %s
+            OR CAST(date_published AS VARCHAR) ILIKE %s
+            OR content ILIKE %s;
+        """
+        self.cursor.execute(query, (f"%{value}%",) * 3)
+        return self.cursor.fetchall()  
+    #search attendance
+    def search_attendance(self, value):
+        query = """
+        SELECT *
+        FROM vbms.attendance
+        WHERE 
+            CAST(user_id AS VARCHAR) ILIKE %s
+            OR CAST(attendance_status AS VARCHAR) ILIKE %s;
+        """  
+        self.cursor.execute(query, (f"%{value}%",) * 2)
+        return self.cursor.fetchall()
+    #search games
+    def search_games(self, value):
+        query = """
+        SELECT *
+        FROM vbms.games
+        WHERE 
+            location ILIKE %s
+            OR description ILIKE %s
+            OR CAST(gamedate AS VARCHAR) ILIKE %s
+            OR opponent ILIKE %s
+            OR match_score ILIKE %s;
+        """
+        self.cursor.execute(query, (f"%{value}%",) * 5)
+        return self.cursor.fetchall()
+    #search practice
+    def search_practice(self, value):
+        query = """
+        SELECT *
+        FROM vbms.practice
+        WHERE 
+            description ILIKE %s
+            OR location ILIKE %s
+            OR CAST(date AS VARCHAR) ILIKE %s;
+        """
+        self.cursor.execute(query, (f"%{value}%",) * 3)
+        return self.cursor.fetchall()
+    #search users
+    def search_users(self, value):
+        query = """
+        SELECT *
+        FROM vbms.users
+        WHERE 
+            CAST(user_id AS VARCHAR) ILIKE %s 
+            OR email ILIKE %s 
+            OR uname ILIKE %s 
+            OR role ILIKE %s 
+            OR phone_num ILIKE %s 
+            OR CAST(is_commuter AS VARCHAR) ILIKE %s 
+            OR shirt_size ILIKE %s;
+        """
+        self.cursor.execute(query, (f"%{value}%",) * 7)
+        return self.cursor.fetchall()
+    
+    #------------------------- Complex Searches -------------------
     #Precision Search Functionality
     # This requires specified table and at least one attribute. Can do two attributes and values as well.
     #does not include sets table search as this is not needed
@@ -393,66 +460,14 @@ class volleyBallDatabase():
             return str(value) #returns value as string
     
     #Broad Search Functionality
-    #allows user to input and array of values to search by and returns results from all tables in order of most to least matches
-    def broad_search(self, values):
-        tables_and_columns = {
-            "announcements": ["publisher_uid", "date_published", "content"], #announcement_id not included
-            "attendance": ["user_id", "attendance_status"], #practice_id not included
-            "games": ["location", "description", "opponent", "match_score"], #game_id not included
-            "practice": ["description", "location", "date"], #practice_id not included
-            "users": ["user_id", "email", "uname", "role", "phone_num", "is_commuter", "shirt_size"], #pword not included
-        }
-        queries = []
-        data = []
-        for table, columns in tables_and_columns.items():
-            table_name = 'vbms.' + table
-            #placeholders = ', '.join(['%s'] * len(columns))
-            for value in values: #EDIT NEEDED: need to make it so that it only searches with correct data type
-                queries.append(f"SELECT *, {len(values)} as search_strength FROM {table_name} WHERE {' OR '.join([f'{column} ILIKE %s' for column in columns])}")
-                data.extend(['%' + value + '%' for _ in columns])
-        query = " UNION ".join(queries)
-        self.cursor.execute(query, data)
-        results = self.cursor.fetchall()
-        results.sort(key=lambda x: x[-1], reverse=True) # Order the results by search_strength in descending order so rows with more matches appear at top
-        return results
-    
-    #search announcements
-    def search_announcement(self, value):
-        query = """
-        DO $$
-        DECLARE 
-            SearchStr VARCHAR(100);
-        BEGIN
-            SearchStr := {value};
-
-            SELECT *
-   	        FROM vbms.announcements
-            WHERE CAST(publisher_uid AS VARCHAR) ILIKE SearchStr 
-                OR 
-                OR 
-        """
-    
-    #search each attribute of users table for given str
-    def search_users(self, value):
-        query = """
-        DO $$ 
-        DECLARE 
-            SearchStr VARCHAR(100);
-        BEGIN
-            SearchStr := {value};
-
-            SELECT *
-   	        FROM vbms.users
-   	        WHERE CAST(user_id AS VARCHAR) ILIKE SearchStr 
-               	OR email ILIKE SearchStr 
-	            OR uname ILIKE SearchStr 
-                OR role ILIKE SearchStr 
-       	        OR phone_num ILIKE SearchStr 
-               	OR CAST(is_commuter AS VARCHAR) = SearchStr 
-       	        OR shirt_size ILIKE SearchStr;
-        END $$;
-        """
-        return self.cursor.fetchall()
+    #allows user to input a string value to search by and returns results from all tables
+    def broad_search(self, value):
+        announcements_results = self.search_announcement(value)
+        attendance_results = self.search_attendance(value)
+        games_results = self.search_games(value)
+        practice_results = self.search_practice(value)
+        users_results = self.search_users(value)
+        return [announcements_results, attendance_results, games_results, practice_results, users_results]
 
     #Match Search functionality 
     def search_matches(self, date=None, location=None):
@@ -490,4 +505,4 @@ if __name__=="__main__":
     #testing precision_search
     print(db.precision_search('users', 'role', 'coach'))
     #testing broad_search
-    print(db.broad_search(["1078735"]))
+    print(db.broad_search("1078735"))
