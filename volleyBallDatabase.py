@@ -1,6 +1,6 @@
 import psycopg2
 import json
-
+import time
 from datetime import datetime
 
 create_announcements="""
@@ -447,9 +447,23 @@ if __name__=="__main__":
     cursor =connection.cursor()
     db = volleyBallDatabase(cursor=cursor,connection=connection)
     
-    print(db.search_news(content='Match Cancelation'))
+    # t1 =time.time()
+    # print(db.search_news(content='Match Cancel'),end='\n\n')
+    # t2 =time.time()
+    
+    
+    # t3 =time.time()
+    # print(db.search_matches(location='University Of'),end='\n\n')
+    # t4 =time.time()
 
-    #testing precision_search
-    print(db.precision_search('users', 'role', 'coach'))
-    #testing broad_search
-    print(db.broad_search(["megan.fleck@maine.edu"]))
+    t5=time.time()
+    print(db.search_news(date_published='2011-03-02'),end='\n\n')
+    t6=time.time()
+    
+    print(f'News search took with date: {t6-t5} seconds \n')
+    
+    # print(f'Match search took: {t4-t3} seconds \n')
+    # #testing precision_search
+    # print(db.precision_search('users', 'role', 'coach'))
+    # #testing broad_search
+    # print(db.broad_search(["megan.fleck@maine.edu"]))

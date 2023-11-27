@@ -201,7 +201,7 @@ function Result(props) {
     switch(name) {
       case 'Games':
         rendered_data=props.data.map((element) =>  {
-          return <Game role={props.decodedAuthToken} gamedata={element}/>
+          return <Game role={props.decodedAuthToken.role} gamedata={element}/>
         })
         break
       case 'Announcements':
