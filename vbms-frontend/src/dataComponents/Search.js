@@ -18,29 +18,10 @@ function Search(props) {
 
   }
  
-  const [gamesList,setGamesList]=useState([{
-    "game_id": 101,
-    "location": "Bates College",
-    "description": "USM v.s. Bates College! Located at Bates College on 2024-11-02 00:00:37.",
-    "gamedate": "2024-11-02 00:00:37",
-    "opponent": "Bates College",
-    "game_score": null
-  }])
-  const [announcementsList,setAnnouncementsList]=useState([{
-    "id": 335,
-    "description": "Training Camp: Hitters announces a Team Building training camp on 2021-07-27 at South Robertside. Open for both new talents and seasoned players!",
-    "datetime": "2021-10-05 00:00:00"
-  }])
-  const [practiceList,setPracticeList]=useState([{
-    "id": 2,
-    "description": "Passing Clinic. Drive Safe!",
-    "location": "Gorham Gym",
-    "datetime": "2021-11-22 06:47:40"
-  }])
-  const [playerList,setPlayerList]=useState([{
-    "username": "Edwin.Rush",
-    "email": "Edwin.Rush@maine.edu"
-  }])
+  const [gamesList,setGamesList]=useState([])
+  const [announcementsList,setAnnouncementsList]=useState([])
+  const [practiceList,setPracticeList]=useState([])
+  const [playerList,setPlayerList]=useState([])
 
   const search_array_map={
     'Announcements':announcementsList,
@@ -59,11 +40,30 @@ function Search(props) {
 
   const inputRef = useRef(null);
 
-  const handleQuery=() => {
+  const handleQuery=(e) => {
     inputRef.current.blur()
     console.log(searchMethod)
     console.log(table)
     console.log(attribute)
+    fetch('/search',{
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body:JSON.stringify({query:query,method:searchMethod,table:table,attribute:attribute})
+    }).then((response)=>{
+      console.log(response.status)
+      response.json().then(function(data)
+      {
+     
+        
+      });
+      }).catch(function(error){
+        console.log(error)
+      })
+    .catch((error)=>{
+        console.log(error)
+    })
   }
   const handleChange=(e) => {
     setSearchMethod(e.target.value)
@@ -197,6 +197,7 @@ function Result(props) {
   let name =props.name
   let rendered_data;
   console.log(props.data)
+  console.log(props.decodedAuthToken)
   function renderResults(dataList){
     switch(name) {
       case 'Games':

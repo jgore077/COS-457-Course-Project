@@ -288,9 +288,25 @@ def search_news():
     
     return jsonify(news_list)
 
-@app.route('/search')
+@app.route('/search',methods=["POST"])
 def search():
-    pass
+    
+    query=request.json['query']
+    method=request.json['method']
+    attribute=request.json['attribute']
+    table=request.json['table']
+    results=None
+    if method=='Broad Search':
+        db_results=db.broad_search(query)
+        results={'announcements':db_results[0],'games':db_results[2],'practices':db_results[3],'players':db_results[4]}
+    elif method=='Precision Search':
+        pass
+    elif method=='Match Search':
+        results=db.search_matches(date=query,location=query)
+    else: #News search
+        results=db.search_news(content=query,date_published=query)
+    print(request.json)
+    return make_response(json.dumps(results),200)
     
 
 if __name__ == '__main__':

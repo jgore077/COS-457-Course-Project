@@ -340,7 +340,7 @@ class volleyBallDatabase():
     def search_attendance(self, value):
         query = """
         SELECT *
-        FROM vbms.attendance
+        FROM vbms.attendance 
         WHERE 
             CAST(user_id AS VARCHAR) ILIKE %s
             OR CAST(attendance_status AS VARCHAR) ILIKE %s;
