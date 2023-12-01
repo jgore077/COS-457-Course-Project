@@ -469,35 +469,39 @@ class volleyBallDatabase():
         users_results = self.search_users(value)
         return [announcements_results, attendance_results, games_results, practice_results, users_results]
 
+    def format_row(self, row):
+        """
+        Formatting the row with the specified pattern
+        """
+        return {'id': row[0], 'description': row[3], 'datetime': row[2].strftime("%Y-%m-%d %H:%M:%S")}
+    
     #Match Search functionality 
     def search_matches(self, date=None, location=None):
-        if date is not None:
-            date_str = date.strftime('%Y-%m-%d %H:%M:%S')  # Converting datetime to string
-        else:
-            date_str = None
         query = """
         SELECT g.gamedate, g.location
         FROM vbms.games g
         WHERE (%s IS NULL OR g.gamedate = %s)
           AND (%s IS NULL OR g.location ILIKE %s);
         """
-        self.cursor.execute(query, (date_str, date_str, location, f'%{location}%'))
-        return self.cursor.fetchall()
+        self.cursor.execute(query, (date, date, location, f'%{location}%'))
+        results = [self.format_row(row) for row in self.cursor.fetchall()]
+        
+        return results
     
     #News Search Functionality 
     def search_news(self, date_published=None, content=None):
-        if date_published is not None:
-            date_published_str = date_published.strftime('%Y-%m-%d %H:%M:%S')  # Convert datetime to string
-        else:
-            date_published_str = None
+       
         query = """
         SELECT announcement_id, publisher_uid, date_published, content
         FROM vbms.announcements
         WHERE (%s IS NULL OR date_published::date = %s::date)
           AND (%s IS NULL OR content ILIKE %s);
         """
-        self.cursor.execute(query, (date_published_str, date_published_str, content, f'%{content}%'))
-        return self.cursor.fetchall()
+        self.cursor.execute(query, (date_published, date_published, content, f'%{content}%'))
+        
+        results = [self.format_row(row) for row in self.cursor.fetchall()]
+
+        return results
     
 if __name__=="__main__":
     with open('config.json','r') as data:
