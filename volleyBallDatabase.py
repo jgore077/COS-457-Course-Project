@@ -486,13 +486,17 @@ class volleyBallDatabase():
     
     #News Search Functionality 
     def search_news(self, date_published=None, content=None):
+        if date_published is not None:
+            date_published_str = date_published.strftime('%Y-%m-%d')  # Convert datetime to string
+        else:
+            date_published_str = None
         query = """
         SELECT announcement_id, publisher_uid, date_published, content
         FROM vbms.announcements
         WHERE (%s IS NULL OR date_published::date = %s::date)
           AND (%s IS NULL OR content ILIKE %s);
         """
-        self.cursor.execute(query, (date_published, date_published, content, f'%{content}%'))
+        self.cursor.execute(query, (date_published_str, date_published_str, content, f'%{content}%'))
         return self.cursor.fetchall()
     
 if __name__=="__main__":
