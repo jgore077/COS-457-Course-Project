@@ -517,6 +517,18 @@ class volleyBallDatabase():
 
         return results
     
+    #Implementing join operation on games and sets tables 
+    def get_game_and_set_details(self):
+     query = """
+     SELECT g.game_id, g.location, g.description, g.gamedate, g.opponent, 
+            s.set_num, s.usm_score, s.opponent_score
+     FROM vbms.games g
+     JOIN vbms.sets s ON g.game_id = s.game_id;
+        """
+     self.cursor.execute(query)
+     return self.cursor.fetchall()
+
+    
 if __name__=="__main__":
     with open('config.json','r') as data:
         config=json.load(data)
