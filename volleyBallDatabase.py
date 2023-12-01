@@ -471,13 +471,17 @@ class volleyBallDatabase():
 
     #Match Search functionality 
     def search_matches(self, date=None, location=None):
+        if date is not None:
+            date_str = date.strftime('%Y-%m-%d')  # Converting datetime to string
+        else:
+            date_str = None
         query = """
         SELECT g.gamedate, g.location
         FROM vbms.games g
         WHERE (%s IS NULL OR g.gamedate = %s)
           AND (%s IS NULL OR g.location ILIKE %s);
         """
-        self.cursor.execute(query, (date, date, location, f'%{location}%'))
+        self.cursor.execute(query, (date_str, date_str, location, f'%{location}%'))
         return self.cursor.fetchall()
     
     #News Search Functionality 
