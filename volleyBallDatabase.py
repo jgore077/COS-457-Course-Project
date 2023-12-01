@@ -472,7 +472,7 @@ class volleyBallDatabase():
     #Match Search functionality 
     def search_matches(self, date=None, location=None):
         if date is not None:
-            date_str = date.strftime('%Y-%m-%d')  # Converting datetime to string
+            date_str = date.strftime('%Y-%m-%d %H:%M:%S')  # Converting datetime to string
         else:
             date_str = None
         query = """
@@ -487,7 +487,7 @@ class volleyBallDatabase():
     #News Search Functionality 
     def search_news(self, date_published=None, content=None):
         if date_published is not None:
-            date_published_str = date_published.strftime('%Y-%m-%d')  # Convert datetime to string
+            date_published_str = date_published.strftime('%Y-%m-%d %H:%M:%S')  # Convert datetime to string
         else:
             date_published_str = None
         query = """
