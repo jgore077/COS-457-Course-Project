@@ -517,7 +517,7 @@ class volleyBallDatabase():
 
         return results
     
-    #Implementing join operation on games and sets tables 
+    #Implementing join operation on games and sets tables #Project part 3 Search functionality no 2 
     def get_game_and_set_details(self):
      query = """
      SELECT g.game_id, g.location, g.description, g.gamedate, g.opponent, 
@@ -527,6 +527,18 @@ class volleyBallDatabase():
         """
      self.cursor.execute(query)
      return self.cursor.fetchall()
+    
+    #here i am using the EXPLAIN statement to get the query plan
+    def explain_game_and_set_details_query_plan(self):
+        explain_query = """
+        EXPLAIN
+        SELECT g.game_id, g.location, g.description, g.gamedate, g.opponent, 
+               s.set_num, s.usm_score, s.opponent_score
+        FROM vbms.games g
+        JOIN vbms.sets s ON g.game_id = s.game_id;
+        """
+        self.cursor.execute(explain_query)
+        return self.cursor.fetchall()
 
     
 if __name__=="__main__":
@@ -547,9 +559,9 @@ if __name__=="__main__":
     #print(db.search_matches(location='University Of'),end='\n\n')
    # t4 =time.time()
 
-    t5=time.time()
-    print(db.search_news(date_published='2011-03-02'),end='\n\n')
-    t6=time.time()
+    #t5=time.time()
+    #print(db.search_news(date_published='2011-03-02'),end='\n\n')
+    #t6=time.time()
     
     # print(f'News search took with date: {t6-t5} seconds \n')
     
@@ -558,3 +570,9 @@ if __name__=="__main__":
     # print(db.precision_search('users', 'role', 'coach'))
     # #testing broad_search
     # print(db.broad_search(["megan.fleck@maine.edu"]))
+
+    #Testing join queries Project part 3 
+    plan = db.explain_game_and_set_details_query_plan()
+
+    for step in plan:
+     print(step)
