@@ -469,11 +469,25 @@ class volleyBallDatabase():
         users_results = self.search_users(value)
         return [announcements_results, attendance_results, games_results, practice_results, users_results]
 
-    def format_row(self, row):
-        """
-        Formatting the row with the specified pattern
-        """
-        return {'game_id': row[0], 'location': row[1], 'gamedate': row[3].strftime("%Y-%m-%d %H:%M:%S"),'description':row[2],'opponent':row[4],'game_score':row[5]}
+    #  method for formatting match rows
+    def format_match_row(self, row):
+        return {
+            'game_id': row[0],
+            'location': row[1],
+            'gamedate': row[3].strftime("%Y-%m-%d %H:%M:%S"),
+            'description': row[2],
+            'opponent': row[4],
+            'game_score': row[5]
+        }
+
+    # method for formatting news rows
+    def format_news_row(self, row):
+        return {
+            'id': row[0],
+            'description': row[3],
+            'datetime': row[2].strftime("%Y-%m-%d %H:%M:%S")
+        }
+
     
     #Match Search functionality 
     def search_matches(self, date=None, location=None):
@@ -484,12 +498,10 @@ class volleyBallDatabase():
           AND (%s IS NULL OR g.location ILIKE %s);
         """
         self.cursor.execute(query, (date, date, location, f'%{location}%'))
-        results = [self.format_row(row) for row in self.cursor.fetchall()]
+        results = [self.format_match_row(row) for row in self.cursor.fetchall()]
         
         return results
     
-    
-    #Follow this format for the matches {'id':row[0],'description':row[3],'datetime':row[2].strftime("%Y-%m-%d %H:%M:%S")}
     #News Search Functionality 
     def search_news(self, date_published=None, content=None):
        
@@ -501,7 +513,7 @@ class volleyBallDatabase():
         """
         self.cursor.execute(query, (date_published, date_published, content, f'%{content}%'))
         
-        results = [self.format_row(row) for row in self.cursor.fetchall()]
+        results = [self.format_news_row(row) for row in self.cursor.fetchall()]
 
         return results
     
@@ -514,18 +526,18 @@ if __name__=="__main__":
     cursor =connection.cursor()
     db = volleyBallDatabase(cursor=cursor,connection=connection)
     
-    # t1 =time.time()
-    # print(db.search_news(content='Match Cancel'),end='\n\n')
+    #t1 =time.time()
+   # print(db.search_news(content='Match Cancel'),end='\n\n')
     # t2 =time.time()
-    
-    
-    t3 =time.time()
-    print(db.search_matches(location='University Of'),end='\n\n')
-    t4 =time.time()
 
-    # t5=time.time()
-    # print(db.search_news(date_published='2011-03-02'),end='\n\n')
-    # t6=time.time()
+    
+    #t3 =time.time()
+    #print(db.search_matches(location='University Of'),end='\n\n')
+   # t4 =time.time()
+
+    t5=time.time()
+    print(db.search_news(date_published='2011-03-02'),end='\n\n')
+    t6=time.time()
     
     # print(f'News search took with date: {t6-t5} seconds \n')
     
