@@ -52,7 +52,6 @@ function Search(props) {
       },
       body:JSON.stringify({query:query,method:searchMethod,table:table,attribute:attribute})
     }).then((response)=>{
-      console.log(response.status)
       response.json().then(function(data)
       {
      
