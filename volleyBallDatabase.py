@@ -473,12 +473,12 @@ class volleyBallDatabase():
         """
         Formatting the row with the specified pattern
         """
-        return {'id': row[0], 'description': row[3], 'datetime': row[2].strftime("%Y-%m-%d %H:%M:%S")}
+        return {'game_id': row[0], 'location': row[1], 'gamedate': row[3].strftime("%Y-%m-%d %H:%M:%S"),'description':row[2],'opponent':row[4],'game_score':row[5]}
     
     #Match Search functionality 
     def search_matches(self, date=None, location=None):
         query = """
-        SELECT g.gamedate, g.location
+        SELECT g.*
         FROM vbms.games g
         WHERE (%s IS NULL OR g.gamedate = %s)
           AND (%s IS NULL OR g.location ILIKE %s);
@@ -488,6 +488,8 @@ class volleyBallDatabase():
         
         return results
     
+    
+    #Follow this format for the matches {'id':row[0],'description':row[3],'datetime':row[2].strftime("%Y-%m-%d %H:%M:%S")}
     #News Search Functionality 
     def search_news(self, date_published=None, content=None):
        
@@ -517,15 +519,15 @@ if __name__=="__main__":
     # t2 =time.time()
     
     
-    # t3 =time.time()
-    # print(db.search_matches(location='University Of'),end='\n\n')
-    # t4 =time.time()
+    t3 =time.time()
+    print(db.search_matches(location='University Of'),end='\n\n')
+    t4 =time.time()
 
-    t5=time.time()
-    print(db.search_news(date_published='2011-03-02'),end='\n\n')
-    t6=time.time()
+    # t5=time.time()
+    # print(db.search_news(date_published='2011-03-02'),end='\n\n')
+    # t6=time.time()
     
-    print(f'News search took with date: {t6-t5} seconds \n')
+    # print(f'News search took with date: {t6-t5} seconds \n')
     
     # print(f'Match search took: {t4-t3} seconds \n')
     # #testing precision_search
