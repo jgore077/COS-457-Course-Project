@@ -295,17 +295,20 @@ def search():
     method=request.json['method']
     attribute=request.json['attribute']
     table=request.json['table']
-    results=None
+    results={}
     if method=='Broad Search':
         db_results=db.broad_search(query)
         results={'announcements':db_results[0],'games':db_results[2],'practices':db_results[3],'players':db_results[4]}
     elif method=='Precision Search':
-        pass
+        pass    
     elif method=='Match Search':
-        results=db.search_matches(date=query,location=query)
+        results['games']=db.search_matches(location=query)
     else: #News search
-        results=db.search_news(content=query,date_published=query)
+        #                       db.search_news(content=query,date_published=None)
+        results['announcements']=db.search_news(content=query,date_published=None)
     print(request.json)
+   
+   
     return make_response(json.dumps(results),200)
     
 

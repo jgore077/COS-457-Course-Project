@@ -9,6 +9,9 @@ import {Practice} from './Practices'
 
 import { FaSearch,FaAngleRight } from "react-icons/fa";
 import { TextField,InputAdornment,Select,MenuItem,InputLabel,FormControl,FormHelperText } from '@mui/material'
+import { DateTimeField } from '@mui/x-date-pickers/DateTimeField';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 function Search(props) {
   const precision_search_map={
     'Announcements':['Description','Date-time'],
@@ -18,10 +21,10 @@ function Search(props) {
 
   }
  
-  const [gamesList,setGamesList]=useState([])
-  const [announcementsList,setAnnouncementsList]=useState([])
-  const [practiceList,setPracticeList]=useState([])
-  const [playerList,setPlayerList]=useState([])
+  const [gamesList,setGamesList]=useState(undefined)
+  const [announcementsList,setAnnouncementsList]=useState(undefined)
+  const [practiceList,setPracticeList]=useState(undefined)
+  const [playerList,setPlayerList]=useState(undefined)
 
   const search_array_map={
     'Announcements':announcementsList,
@@ -31,8 +34,9 @@ function Search(props) {
   }
 
   const [query,setQuery]=useState('')
-  const [searchMethod,setSearchMethod]=useState('Broad Search')
-  const [sidebarState,setSidebarState]=useState(props.sidebarState)
+  const [searchMethod,setSearchMethod]=useState('Match Search')
+  const [sidebarState,setSidebarState]=useState(true)
+  const [dateTimeValue,setDateTimeValue]=useState(undefined)
 
 
   const [table,setTable]=useState('Announcements')
@@ -50,11 +54,14 @@ function Search(props) {
       headers: {
         "Content-Type": "application/json",
       },
-      body:JSON.stringify({query:query,method:searchMethod,table:table,attribute:attribute})
+      body:JSON.stringify({query:query,method:searchMethod,table:table,attribute:attribute,datetime:dateTimeValue})
     }).then((response)=>{
       response.json().then(function(data)
       {
-     
+        setAnnouncementsList(data['announcements'])
+        setGamesList(data['games'])
+        setPlayerList(data['players'])
+        setPracticeList(data['practices'])
         
       });
       }).catch(function(error){
@@ -99,7 +106,54 @@ function Search(props) {
     }
   }, [props.sidebarState]);
 
-  
+  function Result(props) {
+    const [displayResults,setDisplayResults]=useState(false)
+    let name =props.name
+    let rendered_data;
+    console.log(props.data)
+    console.log(props.decodedAuthToken)
+    function renderResults(dataList){
+      switch(name) {
+        case 'Games':
+          rendered_data=props.data.map((element) =>  {
+            return <Game role={props.decodedAuthToken.role} gamedata={element}/>
+          })
+          break
+        case 'Announcements':
+          rendered_data=props.data.map((element) =>  {
+            return <Announcement role={props.decodedAuthToken.role} datetime={element.datetime} description={element.description} id={element.id}/>
+          })
+          break;
+        case 'Practices':
+          rendered_data=props.data.map((element) =>  {
+            return <Practice role={props.decodedAuthToken.role} practice={element}/>
+          })
+          break;
+        default:
+          rendered_data=props.data.map((element) =>  {
+            return <Player username={element.username} email={element.email}/>
+          })
+          break;
+      } 
+      return rendered_data
+    }
+    
+    return (
+      <div>
+      <div 
+      style={{width:'75vw',display:'flex',justifyContent:'space-between',backgroundColor:'lightgrey',padding:10}}
+      onClick={() => {
+        setDisplayResults(!displayResults)
+      }}
+      >{name} 
+      <span>
+        {search_array_map[name].length} Results <FaAngleRight style={{ transform: displayResults ?  'rotate(90deg)' : 'rotate(0deg)', transition:'.2s'}}/></span></div>
+      <div style={{ display: displayResults ?'inline':'none'}}>
+        {renderResults(props.data)}
+      </div>
+      </div>
+    )
+  }
   return (
     <div class='center' style={{ zIndex: sidebarState ? -1 : 0}} >
     <FormControl style={{ zIndex: sidebarState ? -1 : 0}} sx={{ m: 1, width: '30ch' }}>
@@ -148,6 +202,16 @@ function Search(props) {
     
     </div>
     :undefined}
+    {searchMethod=='News Search'|| searchMethod=='Match Search'?
+  <LocalizationProvider dateAdapter={AdapterDayjs}>
+  <DateTimeField
+  style={{ zIndex: sidebarState ? -1 : 0}} sx={{ m: 1, width: '30ch' }}
+  label="Enter A Date! (Optional Field)"
+  value={dateTimeValue}
+  onChange={(newValue) => setDateTimeValue(newValue)}
+    />
+  </LocalizationProvider>
+  :undefined}
     <TextField
     id="input-with-icon-textfield"
     inputRef={inputRef}
@@ -175,7 +239,7 @@ function Search(props) {
       endAdornment:(
         <InputAdornment  position="end">
          <p onClick={handleQuery}
-         style={{color:'blue','user-select': 'none','cursor':'pointer'}} >Go!</p>
+         style={{color:'blue','cursor':'pointer'}} >Go!</p>
         </InputAdornment>
       )
     }}
@@ -183,6 +247,9 @@ function Search(props) {
   />
    { Object.keys(precision_search_map).map((element) =>  {
           console.log('this is the token from search'+props.decodedAuthToken.role)
+          if(search_array_map[element]==undefined){
+            return
+          }
           return <Result decodedAuthToken={props.decodedAuthToken} name={element} data={search_array_map[element]}/>
         })}
   </div>
@@ -191,52 +258,7 @@ function Search(props) {
 
 
 
-function Result(props) {
-  const [displayResults,setDisplayResults]=useState(false)
-  let name =props.name
-  let rendered_data;
-  console.log(props.data)
-  console.log(props.decodedAuthToken)
-  function renderResults(dataList){
-    switch(name) {
-      case 'Games':
-        rendered_data=props.data.map((element) =>  {
-          return <Game role={props.decodedAuthToken.role} gamedata={element}/>
-        })
-        break
-      case 'Announcements':
-        rendered_data=props.data.map((element) =>  {
-          return <Announcement role={props.decodedAuthToken.role} datetime={element.datetime} description={element.description} id={element.id}/>
-        })
-        break;
-      case 'Practices':
-        rendered_data=props.data.map((element) =>  {
-          return <Practice role={props.decodedAuthToken.role} practice={element}/>
-        })
-        break;
-      default:
-        rendered_data=props.data.map((element) =>  {
-          return <Player username={element.username} email={element.email}/>
-        })
-        break;
-    } 
-    return rendered_data
-  }
-  
-  return (
-    <div>
-    <div 
-    style={{width:'75vw',display:'flex',justifyContent:'space-between',backgroundColor:'lightgrey',padding:10}}
-    onClick={() => {
-      setDisplayResults(!displayResults)
-    }}
-    >{name}<FaAngleRight style={{ transform: displayResults ?  'rotate(90deg)' : 'rotate(0deg)', transition:'.2s'}}/></div>
-    <div style={{ display: displayResults ?'inline':'none'}}>
-      {renderResults(props.data)}
-    </div>
-    </div>
-  )
-}
+
 
 
 export default Search
