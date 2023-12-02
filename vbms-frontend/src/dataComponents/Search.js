@@ -34,7 +34,7 @@ function Search(props) {
   }
 
   const [query,setQuery]=useState('')
-  const [searchMethod,setSearchMethod]=useState('Match Search')
+  const [searchMethod,setSearchMethod]=useState('Vector Search')
   const [sidebarState,setSidebarState]=useState(true)
   const [dateTimeValue,setDateTimeValue]=useState(undefined)
 
@@ -168,6 +168,7 @@ function Search(props) {
           <MenuItem value={'Precision Search'}>Precision Search</MenuItem>
           <MenuItem value={'Match Search'}>Match Search</MenuItem>
           <MenuItem value={'News Search'}>New Search</MenuItem>
+          <MenuItem value={'Vector Search'}>Vector Search</MenuItem>
         </Select>
         <FormHelperText>Select Your Search Method!</FormHelperText>
       </FormControl>

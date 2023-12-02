@@ -3,6 +3,7 @@ import json
 import time
 from datetime import datetime
 
+
 create_announcements="""
 -- Table: vbms.announcements
 
@@ -173,6 +174,7 @@ ALTER TABLE IF EXISTS vbms.sets
     OWNER to volleyballadmin;
 """
 
+
 class volleyBallDatabase():
 
     def __init__(self,cursor,connection) -> None:
@@ -230,6 +232,26 @@ class volleyBallDatabase():
     def fetch_sets(self):
         self.cursor.execute("SELECT * FROM vbms.sets")
         return self.cursor.fetchall()
+    
+    def fetch_vectorized_tables(self):
+        self.cursor.execute("SELECT * FROM vbms.vectorized_tables")
+        return self.cursor.fetchall()
+    
+    def fetch_all_entrys_from_ids(self,table,list_of_ids):
+        
+        if list_of_ids==[]:
+            return []
+        
+        table_id_enum={
+            'games':'game_id',
+            'practice':'practice_id',
+            'announcements':'announcement_id'
+        }
+        self.cursor.execute(f"""SELECT * 
+                            FROM vbms.{table}
+                            WHERE {table_id_enum[table]} in ({str(list_of_ids).strip('[]')})
+                            """)
+        return self.cursor.fetchall()
     #----------------------------------------- Inserts ----------------------------------------------
     def insert_practice(self,description,location,date):
         self.cursor.execute(f"""
@@ -266,6 +288,12 @@ class volleyBallDatabase():
     def insert_announcement(self,publisher_uid,date_published,content):
         # You need to commit after executing insert or delete querys
         self.cursor.execute(f"INSERT INTO vbms.announcements(publisher_uid, date_published, content) VALUES ({publisher_uid}, '{date_published}', '{content}');")
+        self.connection.commit()
+        
+    def insert_vectorized_entry(self,origin_id,origin_table,vector):
+        self.cursor.execute(f"""INSERT INTO vbms.vectorized_tables(
+	        origin_id, origin_table, vector)
+	        VALUES ({origin_id}, '{origin_table}', '{vector}');""")
         self.connection.commit()
     # -------------------------------- User updates ---------------------------------------
     def update_user_shirt_size(self,user_id,size):
@@ -576,3 +604,12 @@ if __name__=="__main__":
 
     for step in plan:
      print(step)
+    print(db.fetch_all_entrys_from_ids('games',[101, 100, 99, 98, 97, 96, 95, 94, 93, 92, 91, 90, 89, 85, 84, 83, 80, 79, 77, 76, 73, 72, 71, 69, 68, 66, 65, 64, 63, 61, 60, 59, 58, 57, 56, 55, 54, 53, 50, 49, 48, 47, 46, 42, 39, 38, 37, 36, 34, 33, 30, 29, 28, 27, 26, 22, 20, 19, 18, 17, 16, 15, 14, 13, 11, 10, 8, 7, 6, 5, 4, 3]))
+# vectorized_data=db.fetch_vectorized_tables()
+# vector_table_dict=dict()
+# for entry in vectorized_data:
+#     if entry[1] not in vector_table_dict.keys():
+#         vector_table_dict[entry[1]]= [entry]
+#         continue
+#     vector_table_dict[entry[1]].append(entry)
+# print(vector_table_dict['games'])

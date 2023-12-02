@@ -8,9 +8,14 @@ from jwt import InvalidSignatureError,DecodeError,decode,encode
 import re
 from datetime import datetime
 from volleyBallDatabase import volleyBallDatabase
+from numpy import dot
+from numpy.linalg import norm
+from sentence_transformers import SentenceTransformer
 #Database connection
 
 email_regex=re.compile(r"^[A-Za-z0-9._+\-\']+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$")
+
+
 
 with open('private.key','r') as data:
     secret=data.read()
@@ -23,6 +28,18 @@ cursor =connection.cursor()
 db = volleyBallDatabase(cursor=cursor,connection=connection)
 # Create the Flask app instance
 app = Flask(__name__)
+
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+
+vectorized_data=db.fetch_vectorized_tables()
+
+vector_table_dict=dict()
+for entry in vectorized_data:
+    if entry[1] not in vector_table_dict.keys():
+        vector_table_dict[entry[1]]= [entry]
+        continue
+    vector_table_dict[entry[1]].append(entry)
 
 def jwt_auth(jwt_token)->dict:
     try:
@@ -288,6 +305,10 @@ def search_news():
     
     return jsonify(news_list)
 
+
+def cos_sim(a,b):
+    return dot(a, b)/(norm(a)*norm(b))
+
 @app.route('/search',methods=["POST"])
 def search():
     
@@ -303,15 +324,42 @@ def search():
         pass    
     elif method=='Match Search':
         results['games']=db.search_matches(location=query)
-    else: #News search
+    elif method=='News Search':
         #                       db.search_news(content=query,date_published=None)
         results['announcements']=db.search_news(content=query,date_published=None)
-    print(request.json)
-   
-   
+    elif method=='Vector Search':
+        encoded_query=model.encode(query).tolist()
+        
+        announcement_list=list()
+        practice_list=list()
+        games_list=list()
+        
+        for announcement in vector_table_dict['announcements']:
+            if cos_sim(announcement[2]['description'],encoded_query)>.5:
+                announcement_list.append(announcement[0])
+                
+        for game in vector_table_dict['games']:
+              if cos_sim(game[2]['opponent'],encoded_query)>.5 or cos_sim(game[2]['description'],encoded_query)>.5 or cos_sim(game[2]['location'],encoded_query)>.5:
+                games_list.append(game[0])
+                
+        for practice in vector_table_dict['practice']:
+            if cos_sim(practice[2]['description'],encoded_query)>.5 or cos_sim(practice[2]['location'],encoded_query)>.5:
+                practice_list.append(practice[0])
+    
+    game_entrys=db.fetch_all_entrys_from_ids('games',games_list)
+    announcement_entrys=db.fetch_all_entrys_from_ids('announcements',announcement_list)
+    practice_entrys=db.fetch_all_entrys_from_ids('practice',practice_list)
+    
+    results['games']=[{'game_id': row[0],'location': row[1],'description': row[2],'gamedate': row[3].strftime("%Y-%m-%d %H:%M:%S"),'opponent': row[4],'game_score': row[5]}for row in game_entrys]#{'game_id':row[0],'location':row[1],'description':row[2],'gamedate':row[3].strftime("%Y-%m-%d %H:%M:%S"),'opponent':row[4],'game_score':row[5]}
+    results['announcements']=[{'id':row[0],'description':row[3],'datetime':row[2].strftime("%Y-%m-%d %H:%M:%S")}for row in announcement_entrys]
+    results['practices']=[{'id':row[0],'description':row[1],'location':row[2],'datetime':row[3].strftime("%Y-%m-%d %H:%M:%S")} for row in practice_entrys]
+    
+    for key in results.keys():
+        if results[key]==[]:
+            results[key]=None
     return make_response(json.dumps(results),200)
     
 
-if __name__ == '__main__':
+if __name__ == '__main__':   
     app.run(debug=True)
  
