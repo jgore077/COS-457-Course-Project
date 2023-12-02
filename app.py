@@ -346,14 +346,14 @@ def search():
             if cos_sim(practice[2]['description'],encoded_query)>.5 or cos_sim(practice[2]['location'],encoded_query)>.5:
                 practice_list.append(practice[0])
     
-    game_entrys=db.fetch_all_entrys_from_ids('games',games_list)
-    announcement_entrys=db.fetch_all_entrys_from_ids('announcements',announcement_list)
-    practice_entrys=db.fetch_all_entrys_from_ids('practice',practice_list)
-    
-    results['games']=[{'game_id': row[0],'location': row[1],'description': row[2],'gamedate': row[3].strftime("%Y-%m-%d %H:%M:%S"),'opponent': row[4],'game_score': row[5]}for row in game_entrys]#{'game_id':row[0],'location':row[1],'description':row[2],'gamedate':row[3].strftime("%Y-%m-%d %H:%M:%S"),'opponent':row[4],'game_score':row[5]}
-    results['announcements']=[{'id':row[0],'description':row[3],'datetime':row[2].strftime("%Y-%m-%d %H:%M:%S")}for row in announcement_entrys]
-    results['practices']=[{'id':row[0],'description':row[1],'location':row[2],'datetime':row[3].strftime("%Y-%m-%d %H:%M:%S")} for row in practice_entrys]
-    
+        game_entrys=db.fetch_all_entrys_from_ids('games',games_list)
+        announcement_entrys=db.fetch_all_entrys_from_ids('announcements',announcement_list)
+        practice_entrys=db.fetch_all_entrys_from_ids('practice',practice_list)
+        
+        results['games']=[{'game_id': row[0],'location': row[1],'description': row[2],'gamedate': row[3].strftime("%Y-%m-%d %H:%M:%S"),'opponent': row[4],'game_score': row[5]}for row in game_entrys]#{'game_id':row[0],'location':row[1],'description':row[2],'gamedate':row[3].strftime("%Y-%m-%d %H:%M:%S"),'opponent':row[4],'game_score':row[5]}
+        results['announcements']=[{'id':row[0],'description':row[3],'datetime':row[2].strftime("%Y-%m-%d %H:%M:%S")}for row in announcement_entrys]
+        results['practices']=[{'id':row[0],'description':row[1],'location':row[2],'datetime':row[3].strftime("%Y-%m-%d %H:%M:%S")} for row in practice_entrys]
+        
     for key in results.keys():
         if results[key]==[]:
             results[key]=None
