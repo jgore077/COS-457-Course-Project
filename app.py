@@ -316,6 +316,10 @@ def search():
     method=request.json['method']
     attribute=request.json['attribute']
     table=request.json['table']
+    try:
+        datetime=request.json['datetime']
+    except KeyError:
+        datetime=None
     results={}
     if method=='Broad Search':
         db_results=db.broad_search(query)
@@ -323,10 +327,11 @@ def search():
     elif method=='Precision Search':
         pass    
     elif method=='Match Search':
-        results['games']=db.search_matches(location=query)
+        print(datetime)
+        results['games']=db.search_matches(location=query,date=datetime)
     elif method=='News Search':
         #                       db.search_news(content=query,date_published=None)
-        results['announcements']=db.search_news(content=query,date_published=None)
+        results['announcements']=db.search_news(content=query,date_published=datetime)
     elif method=='Vector Search':
         encoded_query=model.encode(query).tolist()
         
@@ -357,6 +362,7 @@ def search():
     for key in results.keys():
         if results[key]==[]:
             results[key]=None
+    print(request.json)
     return make_response(json.dumps(results),200)
     
 

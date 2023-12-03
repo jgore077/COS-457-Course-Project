@@ -167,7 +167,7 @@ function Search(props) {
           <MenuItem value={'Broad Search'}>Broad Search</MenuItem>
           <MenuItem value={'Precision Search'}>Precision Search</MenuItem>
           <MenuItem value={'Match Search'}>Match Search</MenuItem>
-          <MenuItem value={'News Search'}>New Search</MenuItem>
+          <MenuItem value={'News Search'}>News Search</MenuItem>
           <MenuItem value={'Vector Search'}>Vector Search</MenuItem>
         </Select>
         <FormHelperText>Select Your Search Method!</FormHelperText>

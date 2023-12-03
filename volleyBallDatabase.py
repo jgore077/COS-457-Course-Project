@@ -519,20 +519,25 @@ class volleyBallDatabase():
     
     #Match Search functionality 
     def search_matches(self, date=None, location=None):
+        date_string=None
+        if date:
+            date_string=datetime.strptime(date, '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%Y-%m-%d %H:%M:%S')
         query = """
         SELECT g.*
         FROM vbms.games g
         WHERE (%s IS NULL OR g.gamedate = %s)
           AND (%s IS NULL OR g.location ILIKE %s);
         """
-        self.cursor.execute(query, (date, date, location, f'%{location}%'))
+        self.cursor.execute(query, (date_string, date_string, location, f'%{location}%'))
         results = [self.format_match_row(row) for row in self.cursor.fetchall()]
         
         return results
     
     #News Search Functionality 
     def search_news(self, date_published=None, content=None):
-       
+        date_string=None
+        if date_published:
+            date_string=datetime.strptime(date_published, '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%Y-%m-%d %H:%M:%S')
         query = """
         SELECT announcement_id, publisher_uid, date_published, content
         FROM vbms.announcements
