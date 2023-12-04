@@ -594,11 +594,32 @@ class volleyBallDatabase():
      except (Exception, psycopg2.DatabaseError) as error:
         print(f"Error in transaction: {error}")
         self.connection.rollback()  # Rollback the transaction
-        print("Transaction rolled back due to an error")
+        print("Transaction rolled back!")
 
      finally:
-        self.connection.autocommit = True 
+       self.connection.autocommit = True 
 
+#this method will test the update_user_email above. it will send a uder_id and new/ already existing email 
+def test_update_user_email(self):
+        user_id = 1  # will replace with a valid user_id
+        new_email = "newemail@sth.com"  # will replace this with a new email 
+        duplicate_email = "currentemail@.com"  # will replace this with somebody's current email
+
+        print("Testing successful email update...")
+        try:
+            self.update_user_email(user_id, new_email)
+            print("Success: Email updated.")
+        except Exception as e:
+            print(f"Failed: {e}")
+
+        print("Testing email update with duplicate email...")
+        try:
+            self.update_user_email(user_id, duplicate_email)
+            print("Failed: Email update unable to succeed with a duplicate email.")
+        except ValueError:
+            print("Success: Correctly identified duplicate email.")
+        except Exception as e:
+            print(f"Failed: Unexpected error {e}")
     
 if __name__=="__main__":
     with open('config.json','r') as data:
