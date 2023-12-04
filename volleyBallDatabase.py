@@ -607,16 +607,16 @@ class volleyBallDatabase():
 
     #this method will test the update_user_email above. it will send a uder_id and new/ already existing email 
     def test_update_user_email(self):
-        user_id = 1  # will replace with a valid user_id
-        new_email = "pia@gmail.com"  # will replace this with a new email 
+        user_id = 1053941  # will replace with a valid user_id
+        new_email = "panianijholmomos@maine.edu"  # will replace this with a new email 
         duplicate_email = "tranquilvibes1923@gmail.com"  # will replace this with somebody's current email
 
         print("Testing successful email update...")
         try:
             self.update_user_email(user_id, new_email)#use either new_email or duplicate email 
-            print("Success!")
+            print(f"Success!User ID {user_id}'s email is successfully be updated to {new_email}")
         except Exception as e:
-            print(f"Failed!")
+            print(f"Failed!User ID {user_id}'s email could not be updated to {new_email}.")
 
     
 if __name__=="__main__":
@@ -628,7 +628,7 @@ if __name__=="__main__":
     cursor =connection.cursor()
     db = volleyBallDatabase(cursor=cursor,connection=connection)
 
-    db.test_update_user_email() 
+    db.test_update_user_email()#testing for project part 3 transaction  
     
     #t1 =time.time()
    # print(db.search_news(content='Match Cancel'),end='\n\n')
