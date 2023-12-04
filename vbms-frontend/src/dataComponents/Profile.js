@@ -43,7 +43,7 @@ function Profile(props) {
     })
     
   },[])
-  // This block exists so that stuff doesnt overlap
+  // This block exists so that stuff doesnt overlap---- This is me from the future what I meant to say is this exists so the sidebar doesnt overwrite the existing stuff
   useEffect(() => {
     if(props.sidebarState){
       console.log('sidebar is open')
