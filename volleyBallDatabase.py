@@ -539,6 +539,32 @@ class volleyBallDatabase():
         """
         self.cursor.execute(explain_query)
         return self.cursor.fetchall()
+    
+    #Functionality for transaction. this function will try to update a new email and check if the email is existing one or not 
+    def update_user_email(self, user_id, new_email):
+     try:
+        # Start a transaction block
+        self.connection.autocommit = False #Disabling autocommit for atomic operation, allowing rollback in case of an error.
+
+        # Check if the new email already exists
+        self.cursor.execute("SELECT * FROM vbms.users WHERE email = %s", (new_email,))
+        if self.cursor.fetchone():
+            raise ValueError("Email already in use")
+
+        # Update the email if it doesn't exist
+        self.cursor.execute("UPDATE vbms.users SET email = %s WHERE user_id = %s", (new_email, user_id))
+
+        # Commit the transaction
+        self.connection.commit()
+        print("Email updated successfully")
+
+     except (Exception, psycopg2.DatabaseError) as error:
+        print(f"Error in transaction: {error}")
+        self.connection.rollback()  # Rollback the transaction
+        print("Transaction rolled back due to an error")
+
+     finally:
+        self.connection.autocommit = True 
 
     
 if __name__=="__main__":
