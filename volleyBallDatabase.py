@@ -598,7 +598,7 @@ if __name__=="__main__":
     cursor =connection.cursor()
     db = volleyBallDatabase(cursor=cursor,connection=connection)
 
-    db.test_update_user_email()#testing for project part 3 transaction  
+    #db.test_update_user_email()#testing for project part 3 transaction  
     
     #t1 =time.time()
    # print(db.search_news(content='Match Cancel'),end='\n\n')
@@ -617,7 +617,7 @@ if __name__=="__main__":
     
     # print(f'Match search took: {t4-t3} seconds \n')
     # #testing precision_search
-    #print(db.precision_search('users', 'uname', 'megan'))
+    #print(db.precision_search('games', 'gamedate', '2024-09-28'))
     # #testing broad_search
     #print(db.broad_search(["megan"]))
 
