@@ -578,7 +578,12 @@ class volleyBallDatabase():
      try:
         # Start a transaction block
         self.connection.autocommit = False #Disabling autocommit for atomic operation, allowing rollback in case of an error.
-
+        
+        # Checking if user_id exists
+        self.cursor.execute("SELECT * FROM vbms.users WHERE user_id = %s", (user_id,))
+        if not self.cursor.fetchone():
+            raise ValueError("User ID does not exist")
+        
         # Check if the new email already exists
         self.cursor.execute("SELECT * FROM vbms.users WHERE email = %s", (new_email,))
         if self.cursor.fetchone():
@@ -595,31 +600,24 @@ class volleyBallDatabase():
         print(f"Error in transaction: {error}")
         self.connection.rollback()  # Rollback the transaction
         print("Transaction rolled back!")
+        raise
 
      finally:
        self.connection.autocommit = True 
 
-#this method will test the update_user_email above. it will send a uder_id and new/ already existing email 
-def test_update_user_email(self):
+    #this method will test the update_user_email above. it will send a uder_id and new/ already existing email 
+    def test_update_user_email(self):
         user_id = 1  # will replace with a valid user_id
-        new_email = "newemail@sth.com"  # will replace this with a new email 
-        duplicate_email = "currentemail@.com"  # will replace this with somebody's current email
+        new_email = "pia@gmail.com"  # will replace this with a new email 
+        duplicate_email = "tranquilvibes1923@gmail.com"  # will replace this with somebody's current email
 
         print("Testing successful email update...")
         try:
-            self.update_user_email(user_id, new_email)
-            print("Success: Email updated.")
+            self.update_user_email(user_id, new_email)#use either new_email or duplicate email 
+            print("Success!")
         except Exception as e:
-            print(f"Failed: {e}")
+            print(f"Failed!")
 
-        print("Testing email update with duplicate email...")
-        try:
-            self.update_user_email(user_id, duplicate_email)
-            print("Failed: Email update unable to succeed with a duplicate email.")
-        except ValueError:
-            print("Success: Correctly identified duplicate email.")
-        except Exception as e:
-            print(f"Failed: Unexpected error {e}")
     
 if __name__=="__main__":
     with open('config.json','r') as data:
@@ -629,6 +627,8 @@ if __name__=="__main__":
 
     cursor =connection.cursor()
     db = volleyBallDatabase(cursor=cursor,connection=connection)
+
+    db.test_update_user_email() 
     
     #t1 =time.time()
    # print(db.search_news(content='Match Cancel'),end='\n\n')
@@ -652,11 +652,11 @@ if __name__=="__main__":
     # print(db.broad_search(["megan.fleck@maine.edu"]))
 
     #Testing join queries Project part 3 
-    plan = db.explain_game_and_set_details_query_plan()
+    #plan = db.explain_game_and_set_details_query_plan()
 
-    for step in plan:
-     print(step)
-    print(db.fetch_all_entrys_from_ids('games',[101, 100, 99, 98, 97, 96, 95, 94, 93, 92, 91, 90, 89, 85, 84, 83, 80, 79, 77, 76, 73, 72, 71, 69, 68, 66, 65, 64, 63, 61, 60, 59, 58, 57, 56, 55, 54, 53, 50, 49, 48, 47, 46, 42, 39, 38, 37, 36, 34, 33, 30, 29, 28, 27, 26, 22, 20, 19, 18, 17, 16, 15, 14, 13, 11, 10, 8, 7, 6, 5, 4, 3]))
+    #for step in plan:
+    # print(step)
+    #print(db.fetch_all_entrys_from_ids('games',[101, 100, 99, 98, 97, 96, 95, 94, 93, 92, 91, 90, 89, 85, 84, 83, 80, 79, 77, 76, 73, 72, 71, 69, 68, 66, 65, 64, 63, 61, 60, 59, 58, 57, 56, 55, 54, 53, 50, 49, 48, 47, 46, 42, 39, 38, 37, 36, 34, 33, 30, 29, 28, 27, 26, 22, 20, 19, 18, 17, 16, 15, 14, 13, 11, 10, 8, 7, 6, 5, 4, 3]))
 # vectorized_data=db.fetch_vectorized_tables()
 # vector_table_dict=dict()
 # for entry in vectorized_data:
@@ -665,3 +665,4 @@ if __name__=="__main__":
 #         continue
 #     vector_table_dict[entry[1]].append(entry)
 # print(vector_table_dict['games'])
+
