@@ -420,9 +420,9 @@ class volleyBallDatabase():
 
     #------------------------- Complex Searches -------------------
     #Precision Search Functionality
-    # This requires specified table and at least one attribute. Can do two attributes and values as well.
+    # This requires specified table, at least one attribute and value. Can do two attributes and values as well.
     #does not include sets table search as this is not needed
-    def precision_search(self, table, attribute1, value1=None, attribute2=None, value2=None):
+    def precision_search(self, table, attribute1, value1, attribute2=None, value2=None):
         # Validate that the provided table and attribute are valid
         valid_tables = ["announcements", "attendance", "games", "practice", "users"]
         valid_attributes = {
@@ -432,64 +432,34 @@ class volleyBallDatabase():
             "practice": ["practice_id", "description", "location", "date"],
             "users": ["user_id", "email", "uname", "role", "phone_num", "is_commuter", "shirt_size"], #pword not included
         }
-        #if provided table/attribute not valid, raise error
+        #if provided table/attribute not valid, or no value given, then raise error
         if table not in valid_tables:
             raise ValueError(f"Invalid table: {table}. Valid tables are {valid_tables}")
         if attribute1 not in valid_attributes.get(table, []):
             raise ValueError(f"Invalid attribute for table {table}: {attribute1}. Valid attributes are {valid_attributes.get(table, [])}")
         if attribute2 is not None and attribute2 not in valid_attributes.get(table, []):
             raise ValueError(f"Invalid second attribute for table {table}: {attribute2}. Valid attributes are {valid_attributes.get(table, [])}")
+        if value1 is None:
+            raise ValueError(f"Please enter a value to search by.")
         
         table_name = 'vbms.' + table
-        value1 = self.cast_value(attribute1, value1) #make sure value1 matches data type of attribute1
-        if attribute2 is not None:
-            if value2 is not None:
-                query = f"SELECT * FROM {table_name} WHERE {attribute1} = %s AND {attribute2} = %s;"
-                value2 = self.cast_value(attribute2, value2)
-                self.cursor.execute(query, (value1, value2))
-            else:#if value2 is left blank but we have specified 2 valid attributes, it will search each attribute using value1 for both.
-                query = f"SELECT * FROM {table_name} WHERE {attribute1} = %s AND {attribute2} = %s;"
-                value2 = self.cast_value(attribute2, value1)#returns value1 as the data type of attribute2
-                self.cursor.execute(query, (value1, value2))
-        else:
-            query = f"SELECT * FROM {table_name} WHERE {attribute1} = %s;"
+        value1 = '%' + str(value1) + '%' 
+        if value2 is not None:
+            value2 = '%' + str(value2) + '%'
+            if attribute2 is not None:
+                query = f"SELECT * FROM {table_name} WHERE CAST({attribute1} AS VARCHAR) ILIKE %s AND CAST({attribute2} AS VARCHAR) ILIKE %s"
+            else: #attribute2 not specified, but value2 is specified. So search for both values in attribute1
+                query = f"SELECT * FROM {table_name} WHERE CAST({attribute1} AS VARCHAR) ILIKE %s AND CAST({attribute1} AS VARCHAR) ILIKE %s"
+            self.cursor.execute(query, (value1, value2))
+        else: #no value2 specified
+            query = f"SELECT * FROM {table_name} WHERE CAST({attribute1} AS VARCHAR) ILIKE %s"
             self.cursor.execute(query, (value1,))
         return self.cursor.fetchall()
-    
-    #casting method for searches
-    def cast_value(self, attribute, value, date_format="%Y-%m-%d %H:%M:%S"):
-        if attribute in ["date_published", "date", "gamedate"]:
-            try:
-                if " " in value:  # Check if there's a space in the value, indicating both date and time
-                    return datetime.strptime(value, date_format)
-                else:
-                    return datetime.strptime(value, "%Y-%m-%d").replace(hour=0, minute=0, second=0)
-                ### EDIT needed, this will only search at time 0:0:0 if no time specified for date, need to fix this
-            except ValueError:
-                # Handle the case where the string is not in the expected format
-                raise ValueError(f"Error: Unable to parse {value} to datetime using format {date_format}")
-        elif attribute in ["is_commuter"]:
-            return value.lower() in ['true', 'yes'] #will accept TRUE, True, YeS, etc. false if anything else
-        elif attribute in ["user_id", "publisher_uid", "practice_id"]:
-            try:
-                return int(value)# Attempt to cast the string to an integer
-            except ValueError:
-                raise ValueError(f"Error: Unable to cast {value} to integer for attribute {attribute}")
-        elif attribute in ["attendance_status"]:
-            if str(value).lower() in ["2", "present", "two"]:
-                return 2
-            elif str(value).lower() in ["1", "excuse", "excused", "one"]:
-                return 1
-            elif str(value).lower() in ["0", "absent", "zero"]:
-                return 0
-            else:
-                raise ValueError(f"Error: Invalid entry, {value}, for attribute {attribute}. 2-present, 1-excused, 0-absent")
-        else:
-            return str(value) #returns value as string
     
     #Broad Search Functionality
     #allows user to input a string value to search by and returns results from all tables
     def broad_search(self, value):
+        value = '%' + str(value) + '%'
         announcements_results = self.search_announcement(value)
         attendance_results = self.search_attendance(value)
         games_results = self.search_games(value)
@@ -628,7 +598,7 @@ if __name__=="__main__":
     cursor =connection.cursor()
     db = volleyBallDatabase(cursor=cursor,connection=connection)
 
-    db.test_update_user_email()#testing for project part 3 transaction  
+    #db.test_update_user_email()#testing for project part 3 transaction  
     
     #t1 =time.time()
    # print(db.search_news(content='Match Cancel'),end='\n\n')
@@ -647,9 +617,9 @@ if __name__=="__main__":
     
     # print(f'Match search took: {t4-t3} seconds \n')
     # #testing precision_search
-    # print(db.precision_search('users', 'role', 'coach'))
+    #print(db.precision_search('games', 'gamedate', '2024-09-28'))
     # #testing broad_search
-    # print(db.broad_search(["megan.fleck@maine.edu"]))
+    #print(db.broad_search(["megan"]))
 
     #Testing join queries Project part 3 
     plan = db.explain_game_and_set_details_query_plan()
