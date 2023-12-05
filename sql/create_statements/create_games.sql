@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS vbms.games
     description text COLLATE pg_catalog."default",
     gamedate timestamp without time zone NOT NULL,
     opponent text COLLATE pg_catalog."default",
-    match_score text COLLATE pg_catalog."default",
+    game_score text COLLATE pg_catalog."default",
     CONSTRAINT games_pkey PRIMARY KEY (game_id)
 )
 

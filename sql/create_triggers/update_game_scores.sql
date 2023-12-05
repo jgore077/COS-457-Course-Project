@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION vbms.update_match_scores()
+CREATE OR REPLACE FUNCTION vbms.update_game_scores()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 
@@ -24,7 +24,7 @@ BEGIN
 
     -- Update the match_scores in the games table
     UPDATE vbms.games
-    SET match_score = usm_wins || ' - ' || opponent_wins
+    SET game_score = usm_wins || ' - ' || opponent_wins
     WHERE game_id = NEW.game_id;
 
     RAISE NOTICE '% % % %', NEW.game_id, total_sets, usm_wins, opponent_wins;
@@ -34,10 +34,10 @@ END;
 $$;
 
 
-DROP TRIGGER IF EXISTS update_match_scores_trigger ON vbms.sets;
+DROP TRIGGER IF EXISTS update_game_scores_trigger ON vbms.sets;
 
-CREATE TRIGGER update_match_scores_trigger
+CREATE TRIGGER update_game_scores_trigger
 AFTER INSERT
 ON vbms.sets
 FOR EACH ROW
-EXECUTE FUNCTION vbms.update_match_scores();
+EXECUTE FUNCTION vbms.update_game_scores();
