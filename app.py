@@ -315,19 +315,25 @@ def search():
     method=request.json['method']
     attribute=request.json['attribute']
     table=request.json['table']
+    
     try:
         datetime=request.json['datetime']
     except KeyError:
         datetime=None
+        
     results={}
+    
     if method=='Broad Search':
         db_results=db.broad_search(query)
         results={'announcements':db_results[0],'games':db_results[2],'practices':db_results[3],'players':db_results[4]}
+        
     elif method=='Precision Search':
-        pass    
+        db_results=db.precision_search(table,attribute)    
+            
     elif method=='Match Search':
         print(datetime)
         results['games']=db.search_matches(location=query,date=datetime)
+        
     elif method=='News Search':
         #                       db.search_news(content=query,date_published=None)
         results['announcements']=db.search_news(content=query,date_published=datetime)
