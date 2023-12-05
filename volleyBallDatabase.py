@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS vbms.games
     description text COLLATE pg_catalog."default",
     gamedate timestamp with time zone NOT NULL,
     opponent text COLLATE pg_catalog."default",
-    match_score text COLLATE pg_catalog."default",
+    game_score text COLLATE pg_catalog."default",
     CONSTRAINT games_pkey PRIMARY KEY (game_id)
 )
 
@@ -73,15 +73,15 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS vbms.games
     OWNER to volleyballadmin;
 
--- Trigger: update_match_scores_trigger   
+-- Trigger: update_game_scores_trigger   
 
--- DROP TRIGGER IF EXISTS update_match_scores_trigger ON vbms.sets()
+-- DROP TRIGGER IF EXISTS update_game_scores_trigger ON vbms.sets()
 
-CREATE OR REPLACE TRIGGER update_match_scores_trigger
+CREATE OR REPLACE TRIGGER update_game_scores_trigger
 AFTER INSERT
 ON vbms.sets
 FOR EACH ROW
-EXECUTE FUNCTION vbms.update_match_score();
+EXECUTE FUNCTION vbms.update_game_score();
 """
 create_practices="""
 -- Table: vbms.practice
@@ -351,6 +351,16 @@ class volleyBallDatabase():
         """)
         self.connection.commit()
     #--------------------------- Search Functions ------------------
+    #------- Formatting Functions for returning search results---
+    
+    # method for formatting broad search results
+    def format_(self, table):
+        return {
+            ''
+        }
+
+    
+
     #------- Basic Table Searches------
     #search announcements
     def search_announcement(self, value):
@@ -363,7 +373,12 @@ class volleyBallDatabase():
             OR content ILIKE %s;
         """
         self.cursor.execute(query, (f"%{value}%",) * 3)
-        return self.cursor.fetchall()  
+        results = self.cursor.fetchall()
+        processed_results = []
+        for row in results:
+            processed_row = {'id': row[0], 'publisher_uid': row[1], 'date_published': row[2].strftime("%Y-%m-%d %H:%M:%S"), 'content': row[3]}
+            processed_results.append(processed_row)
+        return processed_results
     #search attendance
     def search_attendance(self, value):
         query = """
@@ -374,7 +389,12 @@ class volleyBallDatabase():
             OR CAST(attendance_status AS VARCHAR) ILIKE %s;
         """  
         self.cursor.execute(query, (f"%{value}%",) * 2)
-        return self.cursor.fetchall()
+        results = self.cursor.fetchall()
+        processed_results = []
+        for row in results:
+            processed_row = {'id': row[0], 'user_id': row[1], 'attendance_status': row[2]}
+            processed_results.append(processed_row)
+        return processed_results
     #search games
     def search_games(self, value):
         query = """
@@ -385,10 +405,15 @@ class volleyBallDatabase():
             OR description ILIKE %s
             OR CAST(gamedate AS VARCHAR) ILIKE %s
             OR opponent ILIKE %s
-            OR match_score ILIKE %s;
+            OR game_score ILIKE %s;
         """
         self.cursor.execute(query, (f"%{value}%",) * 5)
-        return self.cursor.fetchall()
+        results = self.cursor.fetchall()
+        processed_results = []
+        for row in results:
+            processed_row = {'id': row[0], 'location': row[1], 'description': row[2], 'gamedate': row[3].strftime("%Y-%m-%d %H:%M:%S"), 'opponent': row[4], 'game_score': row[5]}
+            processed_results.append(processed_row)
+        return processed_results
     #search practice
     def search_practice(self, value):
         query = """
@@ -400,7 +425,12 @@ class volleyBallDatabase():
             OR CAST(date AS VARCHAR) ILIKE %s;
         """
         self.cursor.execute(query, (f"%{value}%",) * 3)
-        return self.cursor.fetchall()
+        results = self.cursor.fetchall()
+        processed_results = []
+        for row in results:
+            processed_row = {'id': row[0], 'description': row[1], 'location': row[2], 'date': row[3].strftime("%Y-%m-%d %H:%M:%S")}
+            processed_results.append(processed_row)
+        return processed_results
     #search users
     def search_users(self, value):
         query = """
@@ -416,7 +446,12 @@ class volleyBallDatabase():
             OR shirt_size ILIKE %s;
         """
         self.cursor.execute(query, (f"%{value}%",) * 7)
-        return self.cursor.fetchall()
+        results = self.cursor.fetchall()
+        processed_results = []
+        for row in results:
+            processed_row = {'user_id': row[0], 'email': row[1], 'uname': row[2], 'pword': row[3], 'role': row[4], 'phone_num': row[5], "is_commuter": row[6], 'shirt_size': row[7]}
+            processed_results.append(processed_row)
+        return processed_results
 
     #------------------------- Complex Searches -------------------
     #Precision Search Functionality
@@ -428,7 +463,7 @@ class volleyBallDatabase():
         valid_attributes = {
             "announcements": ["publisher_uid", "date_published", "content"], #announcement_id not included
             "attendance": ["practice_id", "user_id", "attendance_status"],
-            "games": ["location", "description", "gamedate", "opponent", "match_score"],#game_id not included
+            "games": ["location", "description", "gamedate", "opponent", "game_score"],#game_id not included
             "practice": ["practice_id", "description", "location", "date"],
             "users": ["user_id", "email", "uname", "role", "phone_num", "is_commuter", "shirt_size"], #pword not included
         }
@@ -485,7 +520,6 @@ class volleyBallDatabase():
             'description': row[3],
             'datetime': row[2].strftime("%Y-%m-%d %H:%M:%S")
         }
-
     
     #Match Search functionality 
     def search_matches(self, date=None, location=None):

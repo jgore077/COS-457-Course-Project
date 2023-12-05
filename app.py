@@ -305,7 +305,6 @@ def search_news():
     
     return jsonify(news_list)
 
-
 def cos_sim(a,b):
     return dot(a, b)/(norm(a)*norm(b))
 
