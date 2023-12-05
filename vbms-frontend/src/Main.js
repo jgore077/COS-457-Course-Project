@@ -61,7 +61,7 @@ function Main(props) {
         <span class='centered-title'>{navState[0].toUpperCase() + navState.slice(1)}</span>
         </div>
         <nav className={sidebar ? "nav-menu active" : "nav-menu"}>
-          <ul className="nav-menu-items">
+          <ul className="nav-menu-items" onClick={showSidebar}>
           
             <li style={{borderBottom:'solid'}}className="navbar-toggle">
                 <span style={{paddingRight:60,fontSize:24}}>Menu</span>
@@ -69,38 +69,38 @@ function Main(props) {
             </li>
             <li id='search' class='clickable' onClick={(e) => {
               setNavState(e.target.id)
-              showSidebar()
+              
             }}>
                 Search
             </li>
             <li id='players' class='clickable' onClick={(e) => {
               setNavState(e.target.id)
-              showSidebar()
+             
             }}>
                 Players
             </li>
             <li id='announcements' class='clickable' onClick={(e) => {
               setNavState(e.target.id)
-              showSidebar()
+            
             }}>
                 Announcements
             </li>
             <li id='games' class='clickable' onClick={(e) => {
               setNavState(e.target.id)
-              showSidebar()
+             
             }}>
                 Games
             </li>
             <li id='practices' class='clickable' onClick={(e) => {
               setNavState(e.target.id)
-              showSidebar()
+           
             }}>
                 Practices
             </li>
             <hr/>
             <li id='profile' class='clickable' onClick={(e) => {
               setNavState(e.target.id)
-              showSidebar()
+
             }}>
                 Profile
             </li>
@@ -109,7 +109,11 @@ function Main(props) {
         </nav>
       </IconContext.Provider>
       <ReloadProvider>
-      <div class='content'>{map[navState]}</div>
+      <div class='content' onClick={() => {
+        if(sidebar){
+          showSidebar()
+        }
+      }}>{map[navState]}</div>
       </ReloadProvider>
       
     </div>
