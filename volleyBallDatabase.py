@@ -351,16 +351,6 @@ class volleyBallDatabase():
         """)
         self.connection.commit()
     #--------------------------- Search Functions ------------------
-    #------- Formatting Functions for returning search results---
-    
-    # method for formatting broad search results
-    def format_(self, table):
-        return {
-            ''
-        }
-
-    
-
     #------- Basic Table Searches------
     #search announcements
     def search_announcement(self, value):
@@ -376,7 +366,7 @@ class volleyBallDatabase():
         results = self.cursor.fetchall()
         processed_results = []
         for row in results:
-            processed_row = {'id': row[0], 'publisher_uid': row[1], 'date_published': row[2].strftime("%Y-%m-%d %H:%M:%S"), 'content': row[3]}
+            processed_row = {'id': row[0], 'description': row[3], 'datetime': row[2].strftime("%Y-%m-%d %H:%M:%S")}
             processed_results.append(processed_row)
         return processed_results
     #search attendance
@@ -411,7 +401,7 @@ class volleyBallDatabase():
         results = self.cursor.fetchall()
         processed_results = []
         for row in results:
-            processed_row = {'id': row[0], 'location': row[1], 'description': row[2], 'gamedate': row[3].strftime("%Y-%m-%d %H:%M:%S"), 'opponent': row[4], 'game_score': row[5]}
+            processed_row = {'game_id': row[0], 'location': row[1], 'description': row[2], 'gamedate': row[3].strftime("%Y-%m-%d %H:%M:%S"), 'opponent': row[4], 'game_score': row[5]}
             processed_results.append(processed_row)
         return processed_results
     #search practice
@@ -428,7 +418,7 @@ class volleyBallDatabase():
         results = self.cursor.fetchall()
         processed_results = []
         for row in results:
-            processed_row = {'id': row[0], 'description': row[1], 'location': row[2], 'date': row[3].strftime("%Y-%m-%d %H:%M:%S")}
+            processed_row = {'id': row[0], 'description': row[1], 'location': row[2], 'datetime': row[3].strftime("%Y-%m-%d %H:%M:%S")}
             processed_results.append(processed_row)
         return processed_results
     #search users
@@ -449,7 +439,7 @@ class volleyBallDatabase():
         results = self.cursor.fetchall()
         processed_results = []
         for row in results:
-            processed_row = {'user_id': row[0], 'email': row[1], 'uname': row[2], 'pword': row[3], 'role': row[4], 'phone_num': row[5], "is_commuter": row[6], 'shirt_size': row[7]}
+            processed_row = {'username': row[2], 'email': row[1]}
             processed_results.append(processed_row)
         return processed_results
 
@@ -489,7 +479,21 @@ class volleyBallDatabase():
         else: #no value2 specified
             query = f"SELECT * FROM {table_name} WHERE CAST({attribute1} AS VARCHAR) ILIKE %s"
             self.cursor.execute(query, (value1,))
-        return self.cursor.fetchall()
+
+        results = self.cursor.fetchall()
+        processed_results = []
+        for row in results:
+            if table == "announcements": #announcements
+                processed_results.append(processed_row = {'id': row[0], 'description': row[3], 'datetime': row[2].strftime("%Y-%m-%d %H:%M:%S")})
+            elif table == "attendance": #attendance
+                processed_results.append(processed_row = {'id': row[0], 'user_id': row[1], 'attendance_status': row[2]})
+            elif table == "games": #games
+                processed_results.append(processed_row = {'game_id': row[0], 'location': row[1], 'description': row[2], 'gamedate': row[3].strftime("%Y-%m-%d %H:%M:%S"), 'opponent': row[4], 'game_score': row[5]})
+            elif table == "practice": #practice
+                processed_results.append(processed_row = {'id': row[0], 'description': row[1], 'location': row[2], 'datetime': row[3].strftime("%Y-%m-%d %H:%M:%S")})
+            elif table == "users": #users
+                processed_results.append(processed_row = {'username': row[2], 'email': row[1]})   
+        return processed_results
     
     #Broad Search Functionality
     #allows user to input a string value to search by and returns results from all tables
