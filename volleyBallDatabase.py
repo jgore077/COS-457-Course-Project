@@ -484,15 +484,20 @@ class volleyBallDatabase():
         processed_results = []
         for row in results:
             if table == "announcements": #announcements
-                processed_results.append(processed_row = {'id': row[0], 'description': row[3], 'datetime': row[2].strftime("%Y-%m-%d %H:%M:%S")})
+                processed_row = {'id': row[0], 'description': row[3], 'datetime': row[2].strftime("%Y-%m-%d %H:%M:%S")}
+                processed_results.append(processed_row)
             elif table == "attendance": #attendance
-                processed_results.append(processed_row = {'id': row[0], 'user_id': row[1], 'attendance_status': row[2]})
+                processed_row = {'id': row[0], 'user_id': row[1], 'attendance_status': row[2]}
+                processed_results.append(processed_row)
             elif table == "games": #games
-                processed_results.append(processed_row = {'game_id': row[0], 'location': row[1], 'description': row[2], 'gamedate': row[3].strftime("%Y-%m-%d %H:%M:%S"), 'opponent': row[4], 'game_score': row[5]})
+                processed_row = {'game_id': row[0], 'location': row[1], 'description': row[2], 'gamedate': row[3].strftime("%Y-%m-%d %H:%M:%S"), 'opponent': row[4], 'game_score': row[5]}
+                processed_results.append(processed_row)
             elif table == "practice": #practice
-                processed_results.append(processed_row = {'id': row[0], 'description': row[1], 'location': row[2], 'datetime': row[3].strftime("%Y-%m-%d %H:%M:%S")})
+                processed_row = {'id': row[0], 'description': row[1], 'location': row[2], 'datetime': row[3].strftime("%Y-%m-%d %H:%M:%S")}
+                processed_results.append(processed_row)
             elif table == "users": #users
-                processed_results.append(processed_row = {'username': row[2], 'email': row[1]})   
+                processed_row = {'username': row[2], 'email': row[1]}
+                processed_results.append(processed_row)   
         return processed_results
     
     #Broad Search Functionality
