@@ -656,10 +656,10 @@ if __name__=="__main__":
     #print(db.broad_search(["megan"]))
 
     #Testing join queries Project part 3 
-    #plan = db.explain_game_and_set_details_query_plan()
+    plan = db.explain_game_and_set_details_query_plan()
 
-    #for step in plan:
-    # print(step)
+    for step in plan:
+        print(step)
     #print(db.fetch_all_entrys_from_ids('games',[101, 100, 99, 98, 97, 96, 95, 94, 93, 92, 91, 90, 89, 85, 84, 83, 80, 79, 77, 76, 73, 72, 71, 69, 68, 66, 65, 64, 63, 61, 60, 59, 58, 57, 56, 55, 54, 53, 50, 49, 48, 47, 46, 42, 39, 38, 37, 36, 34, 33, 30, 29, 28, 27, 26, 22, 20, 19, 18, 17, 16, 15, 14, 13, 11, 10, 8, 7, 6, 5, 4, 3]))
 # vectorized_data=db.fetch_vectorized_tables()
 # vector_table_dict=dict()
