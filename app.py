@@ -325,10 +325,12 @@ def search():
     
     if method=='Broad Search':
         db_results=db.broad_search(query)
+        print(db_results)
         results={'announcements':db_results[0],'games':db_results[2],'practices':db_results[3],'players':db_results[4]}
-        
+        print(results)
     elif method=='Precision Search':
-        db_results=db.precision_search(table,attribute)    
+        print(table.lower(),attribute.lower(),query)
+        db_results=db.precision_search(table.lower(),attribute.lower(),query)    
             
     elif method=='Match Search':
         print(datetime)

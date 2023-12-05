@@ -14,9 +14,9 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 function Search(props) {
   const precision_search_map={
-    'Announcements':['Description','Date-time'],
-    'Games':['Description','Date-time','Location','Opponent'],
-    'Practices':['Description','Date-time','Location'],
+    'Announcements':['Content','Datetime'],
+    'Games':['Description','Gamedate','Location','Opponent'],
+    'Practices':['Description','Datetime','Location'],
     'Players':['Username','Email'],
 
   }
