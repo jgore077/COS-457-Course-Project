@@ -325,13 +325,19 @@ def search():
     
     if method=='Broad Search':
         db_results=db.broad_search(query)
-        print(db_results)
         results={'announcements':db_results[0],'games':db_results[2],'practices':db_results[3],'players':db_results[4]}
-        print(results)
     elif method=='Precision Search':
-        print(table.lower(),attribute.lower(),query)
-        db_results=db.precision_search(table.lower(),attribute.lower(),query)    
-            
+        search_table=table.lower()
+        search_attribute=attribute.lower()
+        if table=='Practices':
+            search_table='practice'
+        if table=='Players':
+            search_table='users'
+        if attribute=='Username':
+            search_attribute='uname'
+        db_results=db.precision_search(search_table,search_attribute,query)  
+        
+        results={table.lower():db_results}
     elif method=='Match Search':
         print(datetime)
         results['games']=db.search_matches(location=query,date=datetime)
