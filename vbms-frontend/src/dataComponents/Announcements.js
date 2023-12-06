@@ -65,13 +65,18 @@ export function Announcement(prop) {
     
     return time12;
   }
+  const [displayState,setDisplayState] =useState('')
   let date_and_time=prop.datetime.split(' ')
   return (
-    <div class='center'>
+    <div style={{display:displayState}} class='center'>
       {prop.role==='admin'?
       <div class='game-top'>
        {/* This will delete the game later on and the update modal should be disabled after the game day*/}
-      <AiIcons.AiOutlineClose  size={'1.5em'}/>
+      <AiIcons.AiOutlineClose  size={'1.5em'} 
+      onClick={() => {
+        setDisplayState('none')
+        console.log()
+      }}/>
       <Modal type='Announcement'
         id={prop.id} 
         description={prop.description} 

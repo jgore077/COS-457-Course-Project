@@ -62,16 +62,20 @@ export function Practice(prop) {
     
     return time12;
   }
+    const [displayState,setDisplayState] =useState('')
     let id= prop.practice.id
     let date_and_time =prop.practice.datetime.split(' ')
     let location = prop.practice.location
     let description= prop.practice.description
     return (
-      <div class='center'>
+      <div style={{display:displayState}} class='center'>
       {prop.role==='admin'?
       <div class='game-top'>
        {/* This will delete the game later on and the update modal should be disabled after the game day*/}
-      <AiIcons.AiOutlineClose  size={'1.5em'}/>
+      <AiIcons.AiOutlineClose onClick={() => {
+        setDisplayState('none')
+        console.log()
+      }}   size={'1.5em'}/>
       <Modal type='Game'
         id={id} 
         description={description} 
