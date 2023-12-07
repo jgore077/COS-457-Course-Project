@@ -14,8 +14,8 @@ fake = Faker()
 
 games_file = open('games.csv', 'w', newline='', encoding="utf-8")
 write_game = csv.writer(games_file, delimiter=',', lineterminator='\n')
-write_game.writerow(["location", "description", "gamedate", "opponent", "match_score"])
-# TABLE games("game_id", "location", "description", "gamedate", "opponent", "match_score")
+write_game.writerow(["location", "description", "gamedate", "opponent", "game_score"])
+# TABLE games("game_id", "location", "description", "gamedate", "opponent", "game_score")
 #note that game_id automatically increments by one when added to the DB. no need to include in the csv file
 
 teams = ["University of New England", "University of Maine Orino", "University of New Hampshire", "Plymouth State University", "Merrimack College", "Colby College", "Bates College"]

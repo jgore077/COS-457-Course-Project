@@ -15,7 +15,7 @@ write_user.writerow(["user_id", "email", "uname", "pword", "role", "phone_num", 
 #Table Users("user_id", "email", "uname", "pword", "role", "phone_num", "is_commuter", "shirt_size")
 
 #Adding a specific admin user
-write_user.writerow(["1078735", "megan.fleck@maine.edu", "megan.fleck", "password123", "coach", "2078075832", "TRUE", "M"])
+write_user.writerow(["1078735", "megan.fleck@maine.edu", "megan.fleck", "password123", "admin", "2078075832", "TRUE", "M"])
 
 def generate_unique_integers(length, count):
     lower_bound = 10 ** (length - 1)

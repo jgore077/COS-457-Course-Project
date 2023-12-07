@@ -660,7 +660,7 @@ if __name__=="__main__":
     
     # print(f'Match search took: {t4-t3} seconds \n')
     # #testing precision_search
-    results=db.precision_search('games', 'gamedate', '2024-09-28')
+    print(db.precision_search('games', 'gamedate', '2024-09-28'))
     # #testing broad_search
     #print(db.broad_search(["megan"]))
 
