@@ -20,6 +20,7 @@ export function Games(props) {
         
         setGamesList(data.games)
         console.log(data.games)
+        console.log(data.games)
       });
       }).catch(function(error){
         console.log(error)
@@ -59,6 +60,7 @@ export function Games(props) {
 export function Game(prop) {
   function convertTo12HourFormat(time24) {
     // Split the input time string into hours and minutes
+   
     const [hour, minute,seconds] = time24.split(':');
   
     // Parse the hour and minute as integers
@@ -80,6 +82,7 @@ export function Game(prop) {
     return time12;
   }
   
+    const [displayState,setDisplayState] =useState('')
     let date_and_time =prop.gamedata.gamedate.split(' ')
     let location = prop.gamedata.location
     let opponent = prop.gamedata.opponent
@@ -87,11 +90,14 @@ export function Game(prop) {
     let score= prop.gamedata.game_score
     console.log(date_and_time)
     return (
-    <div class='center'>
+    <div style={{'display':displayState}} class='center'>
       {prop.role==='admin'?
       <div class='game-top'>
        {/* This will delete the game later on and the update modal should be disabled after the game day*/}
-      <AiIcons.AiOutlineClose  size={'1.5em'}/>
+      <AiIcons.AiOutlineClose onClick={() => {
+        setDisplayState('none')
+        console.log()
+      }}  size={'1.5em'}/>
       <Modal type='Game'
         id={prop.gamedata.game_id} 
         description={prop.gamedata.description} 
@@ -103,7 +109,7 @@ export function Game(prop) {
       }
       {dayjs(date_and_time[0]).format('MM/DD/YYYY')} at {convertTo12HourFormat(date_and_time[1])}
       <div class='game'>
-        <h3>Score (Home-Away)</h3>
+        {score!=undefined?<h3>Score (Home-Away)</h3>:undefined}
         {score}
         <h3>Location</h3>
         {location}

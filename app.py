@@ -33,7 +33,7 @@ model = SentenceTransformer('all-MiniLM-L6-v2')
 
 
 vectorized_data=db.fetch_vectorized_tables()
-
+# This takes all the returned data from the vector tables and inserts them into a dictionary
 vector_table_dict=dict()
 for entry in vectorized_data:
     if entry[1] not in vector_table_dict.keys():
@@ -41,6 +41,7 @@ for entry in vectorized_data:
         continue
     vector_table_dict[entry[1]].append(entry)
 
+# This decodes JWT tokens
 def jwt_auth(jwt_token)->dict:
     try:
         return(decode(jwt_token,secret,algorithms=["HS256"]))
@@ -48,12 +49,14 @@ def jwt_auth(jwt_token)->dict:
         print(exception)
         return {}
 
+# This function ecnodes JWT Tokes
 def encode_jwt(preEncoded_dict)->str:
     return encode(preEncoded_dict,secret, algorithm="HS256",headers={
         "alg": "HS256",
         "typ": "JWT"
     })
 
+# Handles the login from the interface
 @app.route('/login', methods=["POST"])
 def login():
     username=request.json['username']
@@ -76,7 +79,7 @@ def login():
 
     return make_response(json.dumps(body), 200)
     
-
+# Handles sign-up
 @app.route('/signup', methods=["POST"])
 def signup():
    
@@ -129,7 +132,9 @@ def signup():
         
 
 #     return res
-# add code incase the authToken is invalid
+
+
+# Decodes an JWT Token and returns the decoded token to the user
 @app.route('/decode',methods=["POST"])
 def decodeAuthToken():
     res=make_response()
@@ -145,6 +150,7 @@ def decodeAuthToken():
         return res
     return res
 
+# Returns all players from the database and json formats them
 @app.route('/players')
 def players():
     users_and_emails_list=[]
@@ -153,8 +159,10 @@ def players():
     for row in users_and_emails:
         users_and_emails_list.append({'username':row[0],'email':row[1]})
     return make_response(json.dumps({'players':users_and_emails_list}),200)
-# Run the app if this script is executed directly
 
+
+
+# Returns all games from the database and json formats them
 @app.route('/games')
 def games():
     games_list=[]
@@ -166,6 +174,7 @@ def games():
 
 output_format = "%Y-%m-%d %H:%M:%S"
 
+# Return all announcements from the database and json formats them
 @app.route('/announcements')
 def announcements():
     announcements_list=[]
@@ -175,6 +184,7 @@ def announcements():
          announcements_list.append({'id':row[0],'description':row[3],'datetime':row[2].strftime("%Y-%m-%d %H:%M:%S")})
     return make_response(json.dumps({'announcements':announcements_list}),200)
 
+# Return all practices from the database and json formats them
 @app.route('/practices')
 def practices():
     practice_list=[]
@@ -184,37 +194,45 @@ def practices():
          practice_list.append({'id':row[0],'description':row[1],'location':row[2],'datetime':row[3].strftime("%Y-%m-%d %H:%M:%S")})
     return make_response(json.dumps({'practices':practice_list}),200)
 
+# Creates a game using data sent from the interface
 @app.route('/creategame',methods=["POST"])
 def creategame():
     
     db.insert_game(request.json['location'],request.json['description'],datetime.strptime(request.json['datetime'], "%Y-%m-%dT%H:%M:%S.%fZ").strftime(output_format),request.json['opponent'])
     return make_response({},200)
 
+
+# Creates a practice using data sent from the interface
 @app.route('/createpractice',methods=["POST"])
 def createpractice():
    return make_response({},200)
 
+# Creates an announcement using data sent from the interface
 @app.route('/createannouncement',methods=["POST"])
 def createannouncement():
    db.insert_announcement(request.json['user_id'],datetime.strptime(request.json['datetime'], "%Y-%m-%dT%H:%M:%S.%fZ").strftime(output_format),request.json['description'])
    return make_response({},200)
 
+# Update a game using data sent from the interface
 @app.route('/updategame',methods=["POST"])
 def updategame():
    
     db.update_game(request.json['id'],request.json['location'],request.json['opponent'],datetime.strptime(request.json['datetime'], "%Y-%m-%dT%H:%M:%S.%fZ").strftime(output_format),request.json['datetime'])
     return make_response({},200)
 
+#Update a practice using data sent from the interface
 @app.route('/updatepractice',methods=["POST"])
 def updatepractice():
     return make_response({},200)
 
+#Update an announcement  using data sent from the interface
 @app.route('/updateannouncement',methods=["POST"])
 def updateannouncement():
    print(request.json['id'],request.json['description'])
    db.update_announcement(request.json['id'],request.json['description'])
    return make_response({},200)
 
+# Returns a users info using their id
 @app.route('/userinfo',methods=["POST"])
 def userinfo():
     try:
@@ -232,6 +250,7 @@ def userinfo():
     print(user_info)
     return make_response(json.dumps({'username':user_info[2],'number':user_info[5],'commuter':user_info[6],'shirt':user_info[7]}),200)
 
+# Changes the shirt size
 @app.route('/shirt',methods=["POST"])
 def shirt():
     shirt_size=request.json['shirt']
@@ -249,6 +268,7 @@ def shirt():
     db.update_user_shirt_size(decodedAuthToken['uid'],shirt_size)
     return make_response({},200)
 
+# Changes the phone number
 @app.route('/phone',methods=["POST"])
 def phone():
     phone_number=request.json['phone']
@@ -266,6 +286,7 @@ def phone():
     db.update_user_phone_number(decodedAuthToken['uid'],phone_number)
     return make_response({},200)
 
+# Changes commmuter status
 @app.route('/commuter',methods=["POST"])
 def commuter():
     commuter_status=request.json['commuter']
@@ -308,6 +329,7 @@ def search_news():
 def cos_sim(a,b):
     return dot(a, b)/(norm(a)*norm(b))
 
+# This method has handling for every search method in the front end and has special functionality for different searchs
 @app.route('/search',methods=["POST"])
 def search():
     
@@ -325,13 +347,19 @@ def search():
     
     if method=='Broad Search':
         db_results=db.broad_search(query)
-        print(db_results)
         results={'announcements':db_results[0],'games':db_results[2],'practices':db_results[3],'players':db_results[4]}
-        print(results)
     elif method=='Precision Search':
-        print(table.lower(),attribute.lower(),query)
-        db_results=db.precision_search(table.lower(),attribute.lower(),query)    
-            
+        search_table=table.lower()
+        search_attribute=attribute.lower()
+        if table=='Practices':
+            search_table='practice'
+        if table=='Players':
+            search_table='users'
+        if attribute=='Username':
+            search_attribute='uname'
+        db_results=db.precision_search(search_table,search_attribute,query)  
+        
+        results={table.lower():db_results}
     elif method=='Match Search':
         print(datetime)
         results['games']=db.search_matches(location=query,date=datetime)
